@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Moon, Sun, Menu, X, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Logo from "@/assets/logo.png";
 
 const navLinks = [
   { href: "/", label: "الرئيسية" },
@@ -39,7 +40,7 @@ export function Navbar() {
       <div className="container mx-auto flex h-14 items-center justify-between px-4 gap-4">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <Image
-            src="public/assets/logo.png"
+            src={Logo}
             alt="SHK Islam"
             width={32}
             height={32}

@@ -1,0 +1,252 @@
+[
+  {
+    "slug": "patience",
+    "nameAr": "الصبر",
+    "nameEn": "Patience",
+    "description": "الصبر على المشاق والمصاعب والثبات على الدين",
+    "ayahs": [
+      { "surahNumber": 2, "ayahNumber": 153 },
+      { "surahNumber": 2, "ayahNumber": 155 },
+      { "surahNumber": 2, "ayahNumber": 156 },
+      { "surahNumber": 3, "ayahNumber": 200 },
+      { "surahNumber": 11, "ayahNumber": 11 },
+      { "surahNumber": 16, "ayahNumber": 126 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 1302 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 1469 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 1053 }
+    ]
+  },
+  {
+    "slug": "repentance",
+    "nameAr": "التوبة",
+    "nameEn": "Repentance",
+    "description": "الرجوع إلى الله تعالى والتخلص من الذنوب والمعاصي",
+    "ayahs": [
+      { "surahNumber": 3, "ayahNumber": 135 },
+      { "surahNumber": 4, "ayahNumber": 17 },
+      { "surahNumber": 11, "ayahNumber": 3 },
+      { "surahNumber": 39, "ayahNumber": 53 },
+      { "surahNumber": 66, "ayahNumber": 8 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 34 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 1303 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2758 }
+    ]
+  },
+  {
+    "slug": "filial-piety",
+    "nameAr": "بر الوالدين",
+    "nameEn": "Filial Piety",
+    "description": "بر الوالدين وبر الأم والximity إليهما",
+    "ayahs": [
+      { "surahNumber": 17, "ayahNumber": 23 },
+      { "surahNumber": 17, "ayahNumber": 24 },
+      { "surahNumber": 31, "ayahNumber": 14 },
+      { "surahNumber": 46, "ayahNumber": 15 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 5964 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6189 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2781 }
+    ]
+  },
+  {
+    "slug": "supplication",
+    "nameAr": "الدعاء",
+    "nameEn": "Supplication",
+    "description": "طلب العبد من الله تعالى ورجاؤه إياه",
+    "ayahs": [
+      { "surahNumber": 2, "ayahNumber": 186 },
+      { "surahNumber": 27, "ayahNumber": 62 },
+      { "surahNumber": 40, "ayahNumber": 60 },
+      { "surahNumber": 110, "ayahNumber": 1 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6339 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 7405 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2729 }
+    ]
+  },
+  {
+    "slug": "sincerity",
+    "nameAr": "الإخلاص",
+    "nameEn": "Sincerity",
+    "description": "إخلاص العمل لله تعالى ونفي الإشراك به",
+    "ayahs": [
+      { "surahNumber": 39, "ayahNumber": 2 },
+      { "surahNumber": 98, "ayahNumber": 5 },
+      { "surahNumber": 112, "ayahNumber": 1 },
+      { "surahNumber": 112, "ayahNumber": 2 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 1 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6483 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 1015 }
+    ]
+  },
+  {
+    "slug": "sustenance",
+    "nameAr": "الرزق",
+    "nameEn": "Sustenance",
+    "description": "طلب الرزق والتوكل على الله في التوسيع",
+    "ayahs": [
+      { "surahNumber": 11, "ayahNumber": 6 },
+      { "surahNumber": 17, "ayahNumber": 30 },
+      { "surahNumber": 29, "ayahNumber": 17 },
+      { "surahNumber": 62, "ayahNumber": 10 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6397 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6415 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2985 }
+    ]
+  },
+  {
+    "slug": "reliance-on-god",
+    "nameAr": "التوكل على الله",
+    "nameEn": "Reliance on God",
+    "description": "ال依赖 على الله والثقة به في كل الأمور",
+    "ayahs": [
+      { "surahNumber": 3, "ayahNumber": 122 },
+      { "surahNumber": 3, "ayahNumber": 160 },
+      { "surahNumber": 9, "ayahNumber": 51 },
+      { "surahNumber": 65, "ayahNumber": 3 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 3343 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 5081 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2992 }
+    ]
+  },
+  {
+    "slug": "good-character",
+    "nameAr": "حسن الخلق",
+    "nameEn": "Good Character",
+    "description": "الأخلاق الحسنة مع الله تعالى ومع الناس",
+    "ayahs": [
+      { "surahNumber": 3, "ayahNumber": 134 },
+      { "surahNumber": 41, "ayahNumber": 34 },
+      { "surahNumber": 68, "ayahNumber": 4 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 60 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 5765 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2609 }
+    ]
+  },
+  {
+    "slug": "truthfulness",
+    "nameAr": "الصدق",
+    "nameEn": "Truthfulness",
+    "description": "الصدق في القول والعمل والتجرد من الكذب",
+    "ayahs": [
+      { "surahNumber": 9, "ayahNumber": 119 },
+      { "surahNumber": 33, "ayahNumber": 35 },
+      { "surahNumber": 33, "ayahNumber": 70 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6094 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6696 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2607 }
+    ]
+  },
+  {
+    "slug": "gratitude",
+    "nameAr": "الشكر",
+    "nameEn": "Gratitude",
+    "description": "شكر الله تعالى على نعمه و铝恩ه",
+    "ayahs": [
+      { "surahNumber": 2, "ayahNumber": 152 },
+      { "surahNumber": 14, "ayahNumber": 7 },
+      { "surahNumber": 31, "ayahNumber": 12 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6412 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 7405 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2999 }
+    ]
+  },
+  {
+    "slug": "humility",
+    "nameAr": "التواضع",
+    "nameEn": "Humility",
+    "description": "التواضع لله تعالى وللناس ونفي الكبر",
+    "ayahs": [
+      { "surahNumber": 7, "ayahNumber": 13 },
+      { "surahNumber": 17, "ayahNumber": 37 },
+      { "surahNumber": 25, "ayahNumber": 63 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 4826 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6136 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2819 }
+    ]
+  },
+  {
+    "slug": "brotherhood",
+    "nameAr": "الأخوة في الإسلام",
+    "nameEn": "Brotherhood in Islam",
+    "description": "أخوة المؤمنين والتواصل بينهم والتعاون",
+    "ayahs": [
+      { "surahNumber": 3, "ayahNumber": 103 },
+      { "surahNumber": 49, "ayahNumber": 10 },
+      { "surahNumber": 59, "ayahNumber": 10 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6241 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6250 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2564 }
+    ]
+  },
+  {
+    "slug": "jihad",
+    "nameAr": "الجهاد",
+    "nameEn": "Jihad",
+    "description": "الجهاد في سبيل الله والقتال في طريق الحق",
+    "ayahs": [
+      { "surahNumber": 2, "ayahNumber": 190 },
+      { "surahNumber": 22, "ayahNumber": 78 },
+      { "surahNumber": 47, "ayahNumber": 4 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 2784 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 2818 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 1876 }
+    ]
+  },
+  {
+    "slug": "knowledge",
+    "nameAr": "طلب العلم",
+    "nameEn": "Seeking Knowledge",
+    "description": "طلب العلم الشرعي والتعلم والتعليم",
+    "ayahs": [
+      { "surahNumber": 35, "ayahNumber": 28 },
+      { "surahNumber": 58, "ayahNumber": 11 },
+      { "surahNumber": 96, "ayahNumber": 1 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 100 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 117 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2699 }
+    ]
+  },
+  {
+    "slug": "dhikr",
+    "nameAr": "ذكر الله",
+    "nameEn": "Remembrance of God",
+    "description": "ذكر الله تعالى بكثرة والتفكر في آياته",
+    "ayahs": [
+      { "surahNumber": 3, "ayahNumber": 191 },
+      { "surahNumber": 13, "ayahNumber": 28 },
+      { "surahNumber": 62, "ayahNumber": 10 }
+    ],
+    "hadiths": [
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 6403 },
+      { "bookSlug": "sahih-al-bukhari", "hadithNumber": 7513 },
+      { "bookSlug": "sahih-muslim", "hadithNumber": 2702 }
+    ]
+  }
+]
