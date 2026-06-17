@@ -10,7 +10,9 @@ interface VerseDetailPageProps {
   params: Promise<{ surahNumber: string; verseNumber: string }>;
 }
 
-export default async function VerseDetailPage({ params }: VerseDetailPageProps) {
+export default async function VerseDetailPage({
+  params,
+}: VerseDetailPageProps) {
   const { surahNumber, verseNumber } = await params;
   const surahNum = parseInt(surahNumber);
   const verseNum = parseInt(verseNumber);
@@ -54,15 +56,19 @@ export default async function VerseDetailPage({ params }: VerseDetailPageProps) 
             </div>
 
             {ayah.textEn && (
-              <div className="border-t pt-4">
-                <p className="text-sm text-muted-foreground mb-1 font-semibold">English</p>
+              <div dir="ltr" className="border-t pt-4">
+                <p className="text-sm text-muted-foreground mb-1 font-semibold">
+                  English
+                </p>
                 <p className="text-sm leading-relaxed">{ayah.textEn}</p>
               </div>
             )}
 
             {ayah.tafsirText && (
               <div className="border-t pt-4">
-                <p className="text-sm text-muted-foreground mb-1 font-semibold">التفسير الميسر</p>
+                <p className="text-sm text-muted-foreground mb-1 font-semibold">
+                  التفسير الميسر
+                </p>
                 <div
                   className="font-arabic text-sm leading-relaxed text-muted-foreground"
                   dangerouslySetInnerHTML={{ __html: ayah.tafsirText }}

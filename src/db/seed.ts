@@ -13,6 +13,11 @@ const db = drizzle(pool, { schema });
 const TAFSIR_ID = 16; // Tafsir Muyassar (Al-Maysar)
 const BATCH_SIZE = 50;
 
+const SAHEEH_INTL_ID = 20;
+function stripFootnotes(html: string): string {
+  return html.replace(/<sup[^>]*>.*?<\/sup>/g, "").trim();
+}
+
 async function fetchJSON<T>(url: string): Promise<T> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
@@ -69,6 +74,22 @@ async function seedAyahs() {
   let totalInserted = 0;
 
   for (const surah of surahs) {
+    // Fetch English translation once per surah
+    let transMap = new Map<number, string>();
+    try {
+      const transData = await fetchJSON<{ translations: any[] }>(
+        `${QURAN_API}/quran/translations/${SAHEEH_INTL_ID}?chapter_number=${surah.number}`,
+      );
+      for (let i = 0; i < transData.translations.length; i++) {
+        const textEn = stripFootnotes(transData.translations[i].text);
+        if (textEn) transMap.set(i + 1, textEn);
+      }
+    } catch (e) {
+      process.stdout.write(
+        `\r  ⚠️ Translation failed for surah ${surah.number}`,
+      );
+    }
+
     let page = 1;
     let hasMore = true;
 
@@ -98,6 +119,7 @@ async function seedAyahs() {
           /[\u0610-\u061A\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]/g,
           "",
         ),
+        textEn: transMap.get(v.verse_number) || null,
         tafsirText: tafsirMap.get(v.verse_key) || null,
         asbabNuzul: null as string | null,
       }));
@@ -175,6 +197,16 @@ async function seedHadiths() {
     const sectionDetail: Record<string, any> =
       araData.metadata?.section_details || {};
 
+    // Fetch English edition for section names, narrator, and english text
+    console.log(`  Fetching ${book.engSlug}...`);
+    const engData = await fetchJSON<any>(`${HADITH_CDN}/${book.engSlug}.json`);
+    const engSections: Record<string, string> =
+      engData.metadata?.sections || {};
+    const engMap = new Map<number, string>();
+    for (const h of engData.hadiths || []) {
+      engMap.set(h.hadithnumber, h.text);
+    }
+
     // Create chapters from sections
     const chapterIds = new Map<number, number>();
 
@@ -185,7 +217,7 @@ async function seedHadiths() {
         .values({
           bookId,
           nameAr: sectionName,
-          nameEn: null,
+          nameEn: engSections[sectionNum] || null,
           order: parseInt(sectionNum),
         })
         .returning({ id: schema.hadithChapters.id });
@@ -206,14 +238,6 @@ async function seedHadiths() {
       return null;
     }
 
-    // Fetch English edition for narrator extraction
-    console.log(`  Fetching ${book.engSlug} for narrators...`);
-    const engData = await fetchJSON<any>(`${HADITH_CDN}/${book.engSlug}.json`);
-    const engMap = new Map<number, string>();
-    for (const h of engData.hadiths || []) {
-      engMap.set(h.hadithnumber, h.text);
-    }
-
     // Insert hadiths from the Arabic data
     const hadiths = araData.hadiths || [];
     let totalInserted = 0;
@@ -230,7 +254,7 @@ async function seedHadiths() {
         const chapterId = chapterIds.get(sectionNum);
         if (!chapterId) continue;
 
-        // Extract narrator from English text
+        // Extract narrator and english text
         let narrator = null;
         const engText = engMap.get(hadith.hadithnumber) || "";
         const narrMatch = engText.match(/^Narrated\s+([^:]+):/i);
@@ -242,6 +266,7 @@ async function seedHadiths() {
           number: Math.floor(hadith.hadithnumber),
           narrator,
           text: hadith.text,
+          textEn: engText || null,
           grade: "Sahih" as const,
           sharh: null as string | null,
         });
