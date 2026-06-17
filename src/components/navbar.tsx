@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,10 +38,20 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-14 items-center justify-between px-4 gap-4">
         <Link href="/" className="flex items-center gap-2 shrink-0">
+          <Image
+            src="public/assets/logo.png"
+            alt="SHK Islam"
+            width={32}
+            height={32}
+            className="rounded-sm"
+          />
           <span className="font-arabic text-lg font-bold">SHK Islam</span>
         </Link>
 
-        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md">
+        <form
+          onSubmit={handleSearch}
+          className="hidden md:flex flex-1 max-w-md"
+        >
           <div className="relative w-full">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
