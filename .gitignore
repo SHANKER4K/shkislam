@@ -46,6 +46,5 @@ next-env.d.ts
 .codegraph
 *.db
 *.sql
-*.json
-!package-lock.json
-!vercel.json
+
+drizzle/
