@@ -10,6 +10,13 @@ const fontBase64 = readFileSync(FONT_PATH).toString("base64");
 const FONT_DATA_URI = `data:font/otf;base64,${fontBase64}`;
 
 export async function POST(request: NextRequest) {
+  if (process.env.VERCEL) {
+    return NextResponse.json(
+      { error: "Export to image is not available on serverless (Vercel). Use localhost instead." },
+      { status: 501 }
+    );
+  }
+
   try {
     const body = await request.json();
     const { text, type, source, templateSlug } = body;
