@@ -47,5 +47,5 @@ next-env.d.ts
 *.db
 *.sql
 *.json
-
 !package-lock.json
+!vercel.json
