@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { GlobalSearchBar } from "@/src/components/global-search-bar";
 import { SearchResults } from "./search-results";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: true },
+};
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string; type?: string }>;

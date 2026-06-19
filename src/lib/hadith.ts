@@ -1,7 +1,7 @@
 import { db } from "@/src/db";
 import { hadiths, hadithChapters, hadithBooks } from "@/src/db/schema";
 import { eq, asc, sql, desc } from "drizzle-orm";
-import { stripDiacritics } from "./citation";
+import { ArabicServices } from "arabic-services";
 
 // Regex for stripping Arabic diacritics — used in SQL for hadiths (no text_simple column)
 const DIACRITICS_REGEX = "[\\u0610-\\u061A\\u064B-\\u065F\\u0670\\u06D6-\\u06ED\\u0640]";
@@ -100,7 +100,7 @@ export async function searchHadiths(query: string) {
   if (!query.trim()) return [];
 
   const trimmed = query.trim();
-  const stripped = stripDiacritics(trimmed);
+  const stripped = ArabicServices.removeTashkeel(trimmed);
 
   // Tier 1: FTS full query
   const ftsResults = await db
@@ -202,6 +202,17 @@ export async function searchHadiths(query: string) {
     .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
     .where(sql`${STRIP_SQL} ILIKE ${likePattern}`)
     .limit(50);
+}
+
+export async function getAllHadithsForSitemap() {
+  return db
+    .select({
+      id: hadiths.id,
+      bookSlug: hadithBooks.slug,
+    })
+    .from(hadiths)
+    .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
+    .orderBy(asc(hadiths.id));
 }
 
 export type Hadith = typeof hadiths.$inferSelect;

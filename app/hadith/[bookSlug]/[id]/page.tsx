@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getHadithById } from "@/src/lib/hadith";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -7,9 +8,34 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import { separateSanadAndMatn } from "@/src/lib/citation";
 import { HadithDetailActions } from "./hadith-detail-actions";
+import { Breadcrumbs } from "@/src/components/breadcrumbs";
+import { CreativeWorkJsonLd } from "@/src/components/structured-data";
+import { SITE_URL, truncate, hadithTitle } from "@/src/lib/seo";
 
 interface HadithDetailPageProps {
   params: Promise<{ bookSlug: string; id: string }>;
+}
+
+export async function generateMetadata({ params }: HadithDetailPageProps): Promise<Metadata> {
+  const { bookSlug, id } = await params;
+  const hadithId = parseInt(id);
+  if (isNaN(hadithId)) return { title: "حديث غير موجود" };
+
+  const [hadith] = await getHadithById(hadithId);
+  if (!hadith || hadith.bookSlug !== bookSlug) return { title: "حديث غير موجود" };
+
+  const { matn } = separateSanadAndMatn(hadith.text);
+  const desc = truncate(matn || hadith.text, 155);
+
+  return {
+    title: hadithTitle(hadith.bookNameAr, hadith.number),
+    description: desc,
+    openGraph: {
+      title: hadithTitle(hadith.bookNameAr, hadith.number),
+      description: desc,
+      url: `${SITE_URL}/hadith/${bookSlug}/${hadithId}`,
+    },
+  };
 }
 
 export default async function HadithDetailPage({
@@ -26,7 +52,20 @@ export default async function HadithDetailPage({
 
   return (
     <main className="flex-1 container mx-auto px-4 py-8">
+      <CreativeWorkJsonLd
+        name={`${hadith.bookNameAr} - حديث رقم ${hadith.number}`}
+        text={hadith.text}
+        author="SHK Islam"
+        url={`${SITE_URL}/hadith/${bookSlug}/${hadithId}`}
+      />
       <div className="mb-6">
+        <Breadcrumbs
+          items={[
+            { label: "الأحاديث النبوية", href: "/hadith" },
+            { label: hadith.bookNameAr, href: `/hadith/${bookSlug}` },
+            { label: `حديث رقم ${hadith.number}` },
+          ]}
+        />
         <Link href={`/hadith/${bookSlug}`}>
           <Button variant="ghost" size="sm">
             <ArrowRight className="ml-2 size-4" />

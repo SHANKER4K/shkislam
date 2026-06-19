@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { getThemeBySlug } from "@/src/lib/themes";
 import { VerseCard } from "@/src/components/verse-card";
 import { HadithCard } from "@/src/components/hadith-card";
 import { ArrowRight, BookOpen, BookText } from "lucide-react";
+import { Breadcrumbs } from "@/src/components/breadcrumbs";
+import { ItemListJsonLd } from "@/src/components/structured-data";
+import { SITE_URL, themeTitle, truncate } from "@/src/lib/seo";
 
 interface ThemePageProps {
   params: Promise<{ slug: string }>;
@@ -14,11 +16,20 @@ interface ThemePageProps {
 export async function generateMetadata({ params }: ThemePageProps) {
   const { slug } = await params;
   const theme = await getThemeBySlug(slug);
-  if (!theme) return { title: "الموضوع غير موجود | SHK Islam" };
+  if (!theme) return { title: "الموضوع غير موجود" };
+
+  const desc = theme.description
+    ? truncate(theme.description, 155)
+    : `${theme.nameAr} - مواضيع إسلامية مع نصوص من القرآن والسنة`;
 
   return {
-    title: `${theme.nameAr} | SHK Islam`,
-    description: theme.description || `${theme.nameAr} - مواضيع إسلامية`,
+    title: themeTitle(theme.nameAr),
+    description: desc,
+    openGraph: {
+      title: themeTitle(theme.nameAr),
+      description: desc,
+      url: `${SITE_URL}/themes/${theme.slug}`,
+    },
   };
 }
 
@@ -32,8 +43,30 @@ export default async function ThemePage({ params }: ThemePageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {(theme.ayahs.length > 0 || theme.hadiths.length > 0) && (
+        <ItemListJsonLd
+          name={theme.nameAr}
+          items={[
+            ...theme.ayahs.map((a) => ({
+              name: `${a.surahName} - الآية ${a.numberInSurah}`,
+              url: `${SITE_URL}/quran/${a.surahNumber}/${a.numberInSurah}`,
+            })),
+            ...theme.hadiths.map((h) => ({
+              name: `${h.bookNameAr} - حديث رقم ${h.hadithNumber}`,
+              url: `${SITE_URL}/hadith/${h.bookSlug}/${h.hadithId}`,
+            })),
+          ]}
+        />
+      )}
+
       {/* Header */}
       <div className="mb-8">
+        <Breadcrumbs
+          items={[
+            { label: "المواضيع", href: "/themes" },
+            { label: theme.nameAr },
+          ]}
+        />
         <Link
           href="/themes"
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4 font-arabic"

@@ -22,9 +22,17 @@ const uthmanic = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "SHK Islam",
+  metadataBase: new URL("https://shkislam.vercel.app"),
+  title: {
+    template: "%s | SHK Islam",
+    default: "SHK Islam - منصة إسلامية للدعاة والخطباء",
+  },
   description:
     "Specialized Islamic web platform targeted at Da'iyahs (preachers), Khateebs (speakers), and students of Islamic knowledge.",
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: [
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
@@ -57,6 +65,20 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", tajawal.variable, uthmanic.variable, "font-sans", inter.variable)}
     >
       <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "SHK Islam",
+              url: "https://shkislam.vercel.app",
+              logo: "https://shkislam.vercel.app/assets/logo.png",
+              description:
+                "Specialized Islamic web platform targeted at Da'iyahs, Khateebs, and students of Islamic knowledge.",
+            }),
+          }}
+        />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <Navbar />
           {children}

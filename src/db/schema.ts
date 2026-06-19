@@ -72,7 +72,10 @@ export const hadithChapters = pgTable(
     nameEn: text("name_en"),
     order: integer("order").notNull(),
   },
-  (table) => [index("hadith_chapters_book_id_idx").on(table.bookId)],
+  (table) => [
+    index("hadith_chapters_book_id_idx").on(table.bookId),
+    uniqueIndex("hadith_chapters_book_order_idx").on(table.bookId, table.order),
+  ],
 );
 
 export const hadiths = pgTable(

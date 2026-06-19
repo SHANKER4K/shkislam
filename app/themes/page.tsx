@@ -4,8 +4,8 @@ import { getAllThemes } from "@/src/lib/themes";
 import { BookOpen } from "lucide-react";
 
 export const metadata = {
-  title: "المواضيع | SHK Islam",
-  description: "تصفح المواضيع الإسلامية المتنوعة",
+  title: "المواضيع",
+  description: "تصفح المواضيع الإسلامية المتنوعة مع نصوص من القرآن الكريم والسنة النبوية.",
 };
 
 export default async function ThemesPage() {

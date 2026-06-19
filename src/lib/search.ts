@@ -1,7 +1,7 @@
 import { searchAyahs } from "./quran";
 import { searchHadiths } from "./hadith";
 import { getAllThemes, getThemeBySlug } from "./themes";
-import { stripDiacritics } from "./citation";
+import { ArabicServices } from "arabic-services";
 
 export type SearchType = "quran" | "hadith" | "all";
 export type SearchMode = "literal" | "thematic";
@@ -88,8 +88,8 @@ async function literalSearch(query: string, type: SearchType) {
  */
 function jsSimilarity(a: string, b: string): number {
   if (!a || !b) return 0;
-  const strippedA = stripDiacritics(a).toLowerCase();
-  const strippedB = stripDiacritics(b).toLowerCase();
+  const strippedA = ArabicServices.removeTashkeel(a).toLowerCase();
+  const strippedB = ArabicServices.removeTashkeel(b).toLowerCase();
 
   if (strippedA === strippedB) return 1;
   if (strippedA.includes(strippedB) || strippedB.includes(strippedA)) return 0.8;

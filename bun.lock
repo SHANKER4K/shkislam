@@ -6,6 +6,7 @@
       "name": "shkislam",
       "dependencies": {
         "@base-ui/react": "^1.5.0",
+        "arabic-services": "^1.0.8",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "drizzle-orm": "^0.45.2",
@@ -13,7 +14,6 @@
         "next": "16.2.9",
         "next-themes": "^0.4.6",
         "pg": "^8.21.0",
-        "playwright": "^1.61.0",
         "radix-ui": "^1.6.0",
         "react": "19.2.4",
         "react-dom": "19.2.4",
@@ -31,6 +31,7 @@
         "drizzle-kit": "^0.31.10",
         "eslint": "^9",
         "eslint-config-next": "16.2.9",
+        "playwright": "^1.61.0",
         "tailwindcss": "^4",
         "typescript": "^5",
       },
@@ -570,6 +571,8 @@
     "ansi-regex": ["ansi-regex@6.2.2", "", {}, "sha512-Bq3SmSpyFHaWjPk8If9yc6svM8c56dB5BAtW4Qbw5jHTwwXXcTLoRMkpDJp6VL0XzlWaCHTXrkFURMYmD0sLqg=="],
 
     "ansi-styles": ["ansi-styles@4.3.0", "", { "dependencies": { "color-convert": "^2.0.1" } }, "sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg=="],
+
+    "arabic-services": ["arabic-services@1.0.8", "", {}, "sha512-1OlK5eDTOjmixOjT8FEis/XHQIZe5lFK75P5/VtMYfaximbPE44+blfxIT5jcL0C/rfdthIVbWHHjzCU8hIkFA=="],
 
     "argparse": ["argparse@2.0.1", "", {}, "sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q=="],
 

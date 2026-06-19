@@ -1,7 +1,7 @@
 import { db } from "@/src/db";
 import { surahs, ayahs } from "@/src/db/schema";
 import { eq, asc, sql, desc } from "drizzle-orm";
-import { stripDiacritics } from "./citation";
+import { ArabicServices } from "arabic-services";
 
 export async function getAllSurahs() {
   return db.select().from(surahs).orderBy(asc(surahs.number));
@@ -49,7 +49,7 @@ export async function searchAyahs(query: string) {
   if (!query.trim()) return [];
 
   const trimmed = query.trim();
-  const stripped = stripDiacritics(trimmed);
+  const stripped = ArabicServices.removeTashkeel(trimmed);
 
   // Tier 1: FTS full query
   const ftsResults = await db
@@ -143,6 +143,17 @@ export async function searchAyahs(query: string) {
     .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
     .where(sql`${ayahs.textSimple} ILIKE ${likePattern}`)
     .limit(50);
+}
+
+export async function getAllAyahsForSitemap() {
+  return db
+    .select({
+      surahNumber: surahs.number,
+      numberInSurah: ayahs.numberInSurah,
+    })
+    .from(ayahs)
+    .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
+    .orderBy(asc(surahs.number), asc(ayahs.numberInSurah));
 }
 
 export type Surah = typeof surahs.$inferSelect;

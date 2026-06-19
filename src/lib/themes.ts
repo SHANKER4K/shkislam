@@ -48,6 +48,10 @@ export async function getAllThemes(): Promise<Theme[]> {
     .orderBy(themes.nameAr);
 }
 
+export async function getAllThemesForSitemap(): Promise<Theme[]> {
+  return getAllThemes();
+}
+
 export async function getThemeBySlug(slug: string): Promise<ThemeWithContent | null> {
   const [theme] = await db
     .select()

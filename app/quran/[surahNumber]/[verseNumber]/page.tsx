@@ -1,13 +1,41 @@
-import { getAyahBySurahAndVerse, getSurahByNumber } from "@/src/lib/quran";
+import type { Metadata } from "next";
+import { getAyahBySurahAndVerse } from "@/src/lib/quran";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import { VerseDetailActions } from "./verse-detail-actions";
+import { Breadcrumbs } from "@/src/components/breadcrumbs";
+import { CreativeWorkJsonLd } from "@/src/components/structured-data";
+import { SITE_URL, truncate, verseTitle } from "@/src/lib/seo";
 
 interface VerseDetailPageProps {
   params: Promise<{ surahNumber: string; verseNumber: string }>;
+}
+
+export async function generateMetadata({ params }: VerseDetailPageProps): Promise<Metadata> {
+  const { surahNumber, verseNumber } = await params;
+  const surahNum = parseInt(surahNumber);
+  const verseNum = parseInt(verseNumber);
+  if (isNaN(surahNum) || isNaN(verseNum)) return { title: "آية غير موجودة" };
+
+  const [ayah] = await getAyahBySurahAndVerse(surahNum, verseNum);
+  if (!ayah) return { title: "آية غير موجودة" };
+
+  const desc = ayah.tafsirText
+    ? truncate(ayah.tafsirText.replace(/<[^>]*>/g, ""), 155)
+    : truncate(ayah.textUthmani, 155);
+
+  return {
+    title: verseTitle(ayah.surahNameAr, ayah.numberInSurah),
+    description: desc,
+    openGraph: {
+      title: verseTitle(ayah.surahNameAr, ayah.numberInSurah),
+      description: desc,
+      url: `${SITE_URL}/quran/${surahNum}/${verseNum}`,
+    },
+  };
 }
 
 export default async function VerseDetailPage({
@@ -23,7 +51,20 @@ export default async function VerseDetailPage({
 
   return (
     <main className="flex-1 container mx-auto px-4 py-8">
+      <CreativeWorkJsonLd
+        name={`سورة ${ayah.surahNameAr} - الآية ${ayah.numberInSurah}`}
+        text={ayah.textUthmani}
+        author="SHK Islam"
+        url={`${SITE_URL}/quran/${surahNum}/${verseNum}`}
+      />
       <div className="mb-6">
+        <Breadcrumbs
+          items={[
+            { label: "القرآن الكريم", href: "/quran" },
+            { label: ayah.surahNameAr, href: `/quran/${surahNum}` },
+            { label: `الآية ${ayah.numberInSurah}` },
+          ]}
+        />
         <Link href={`/quran/${surahNum}`}>
           <Button variant="ghost" size="sm">
             <ArrowRight className="ml-2 size-4" />

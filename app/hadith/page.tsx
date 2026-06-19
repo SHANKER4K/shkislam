@@ -1,13 +1,22 @@
+import type { Metadata } from "next";
 import { getAllBooks } from "@/src/lib/hadith";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookMarked } from "lucide-react";
+import { Breadcrumbs } from "@/src/components/breadcrumbs";
+
+export const metadata: Metadata = {
+  title: "الأحاديث النبوية",
+  description:
+    "تصفّح الأحاديث النبوية الصحيحة من صحيح البخاري وصحيح مسلم.",
+};
 
 export default async function HadithPage() {
   const books = await getAllBooks();
 
   return (
     <main className="flex-1 container mx-auto px-4 py-8">
+        <Breadcrumbs items={[{ label: "الأحاديث النبوية" }]} />
         <h1 className="font-arabic text-3xl font-bold mb-6 text-center">
           الأحاديث النبوية
         </h1>

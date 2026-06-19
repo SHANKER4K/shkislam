@@ -2,6 +2,7 @@ import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { sql } from "drizzle-orm";
 import * as schema from "./schema";
+import { ArabicServices } from "arabic-services";
 
 const QURAN_API = "https://api.quran.com/api/v4";
 const HADITH_CDN =
@@ -115,10 +116,7 @@ async function seedAyahs() {
         surahId: surah.id,
         numberInSurah: v.verse_number,
         textUthmani: v.text_uthmani,
-        textSimple: v.text_uthmani.replace(
-          /[\u0610-\u061A\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]/g,
-          "",
-        ),
+        textSimple: ArabicServices.removeTashkeel(v.text_uthmani),
         textEn: transMap.get(v.verse_number) || null,
         tafsirText: tafsirMap.get(v.verse_key) || null,
         asbabNuzul: null as string | null,
@@ -220,9 +218,22 @@ async function seedHadiths() {
           nameEn: engSections[sectionNum] || null,
           order: parseInt(sectionNum),
         })
+        .onConflictDoNothing()
         .returning({ id: schema.hadithChapters.id });
 
-      chapterIds.set(parseInt(sectionNum), result.id);
+      if (result) {
+        chapterIds.set(parseInt(sectionNum), result.id);
+      } else {
+        // ponytail: conflict = already exists, fetch id
+        const [existing] = await db
+          .select({ id: schema.hadithChapters.id })
+          .from(schema.hadithChapters)
+          .where(
+            sql`${schema.hadithChapters.bookId} = ${bookId} AND ${schema.hadithChapters.order} = ${parseInt(sectionNum)}`
+          )
+          .limit(1);
+        if (existing) chapterIds.set(parseInt(sectionNum), existing.id);
+      }
     }
 
     // Determine which section each hadith belongs to
@@ -295,14 +306,16 @@ async function seedFTS() {
   await db.execute(sql`
     ALTER TABLE hadiths ADD COLUMN IF NOT EXISTS search_vector tsvector;
   `);
+  // ponytail: rebuild all, not just NULL — re-seed needs fresh vectors
   await db.execute(sql`
-    UPDATE ayahs SET search_vector = to_tsvector('arabic', text_uthmani)
-    WHERE search_vector IS NULL
+    UPDATE ayahs SET search_vector = to_tsvector('arabic', text_simple)
   `);
 
+  // ponytail: hadiths have no text_simple column, strip diacritics in SQL
   await db.execute(sql`
-    UPDATE hadiths SET search_vector = to_tsvector('arabic', text)
-    WHERE search_vector IS NULL
+    UPDATE hadiths SET search_vector = to_tsvector('arabic',
+      regexp_replace(text, '[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]', '', 'g')
+    )
   `);
 
   console.log("✅ FTS vectors populated");

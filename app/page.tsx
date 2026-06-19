@@ -1,7 +1,25 @@
+import type { Metadata } from "next";
 import { GlobalSearchBar } from "@/src/components/global-search-bar";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, BookMarked } from "lucide-react";
+import { SITE_URL } from "@/src/lib/seo";
+
+export const metadata: Metadata = {
+  title: "SHK Islam - منصة إسلامية للدعاة والخطباء",
+  description:
+    "منصة إسلامية متخصصة لطلاب العلم والدعاة والخطباء. تصفّح القرآن الكريم مع التفسير، والأحاديث النبوية الصحيحة، ومواضيع إسلامية متنوعة.",
+  openGraph: {
+    title: "SHK Islam - منصة إسلامية للدعاة والخطباء",
+    description:
+      "منصة إسلامية متخصصة لطلاب العلم والدعاة والخطباء. تصفّح القرآن الكريم مع التفسير، والأحاديث النبوية الصحيحة.",
+    url: SITE_URL,
+    siteName: "SHK Islam",
+    images: ["/assets/logo.png"],
+    locale: "ar",
+    type: "website",
+  },
+};
 
 export default function HomePage() {
   return (
