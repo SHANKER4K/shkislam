@@ -107,7 +107,7 @@ export function ExportModal({ text, source, type, children }: ExportModalProps) 
                       {generating && selectedTemplate === template.slug ? (
                         <Loader2 className="size-8 text-muted-foreground animate-spin" />
                       ) : (
-                        <Image className="size-8 text-muted-foreground" />
+                        <Image className="size-8 text-muted-foreground" /> // eslint-disable-line jsx-a11y/alt-text
                       )}
                     </div>
                     <div className="text-center">

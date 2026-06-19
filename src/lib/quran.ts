@@ -35,6 +35,7 @@ export async function getAyahBySurahAndVerse(surahNumber: number, verseNumber: n
       textUthmani: ayahs.textUthmani,
       textEn: ayahs.textEn,
       tafsirText: ayahs.tafsirText,
+      surahId: surahs.id,
       surahNameAr: surahs.nameAr,
       surahNumber: surahs.number,
       nameTranslation: surahs.nameTranslation,
@@ -154,6 +155,24 @@ export async function getAllAyahsForSitemap() {
     .from(ayahs)
     .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
     .orderBy(asc(surahs.number), asc(ayahs.numberInSurah));
+}
+
+export async function getAdjacentAyahs(surahId: number, currentNumber: number) {
+  const [prev] = await db
+    .select({ numberInSurah: ayahs.numberInSurah })
+    .from(ayahs)
+    .where(sql`${ayahs.surahId} = ${surahId} AND ${ayahs.numberInSurah} < ${currentNumber}`)
+    .orderBy(desc(ayahs.numberInSurah))
+    .limit(1);
+
+  const [next] = await db
+    .select({ numberInSurah: ayahs.numberInSurah })
+    .from(ayahs)
+    .where(sql`${ayahs.surahId} = ${surahId} AND ${ayahs.numberInSurah} > ${currentNumber}`)
+    .orderBy(asc(ayahs.numberInSurah))
+    .limit(1);
+
+  return { prev: prev?.numberInSurah ?? null, next: next?.numberInSurah ?? null };
 }
 
 export type Surah = typeof surahs.$inferSelect;

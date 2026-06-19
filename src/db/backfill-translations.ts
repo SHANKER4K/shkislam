@@ -38,6 +38,7 @@ async function backfillAyahs() {
 
   for (const surah of surahs) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = await fetchJSON<{ translations: any[] }>(
         `${QURAN_API}/quran/translations/${SAHEEH_INTL_ID}?chapter_number=${surah.number}`
       );
@@ -93,6 +94,7 @@ async function backfillHadiths() {
     if (bookRecord.length === 0) continue;
 
     console.log(`  Fetching ${book.engSlug}...`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const engData = await fetchJSON<any>(`${HADITH_CDN}/${book.engSlug}.json`);
 
     const engMap = new Map<number, string>();

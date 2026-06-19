@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { getHadithById } from "@/src/lib/hadith";
+import { getHadithById, getAdjacentHadiths, getBookBySlug } from "@/src/lib/hadith";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { separateSanadAndMatn } from "@/src/lib/citation";
 import { HadithDetailActions } from "./hadith-detail-actions";
 import { Breadcrumbs } from "@/src/components/breadcrumbs";
@@ -49,6 +49,11 @@ export default async function HadithDetailPage({
   if (!hadith || hadith.bookSlug !== bookSlug) notFound();
 
   const { sanad, matn } = separateSanadAndMatn(hadith.text);
+
+  const [book] = await getBookBySlug(bookSlug);
+  const { prev, next } = book
+    ? await getAdjacentHadiths(book.id, hadith.number)
+    : { prev: null, next: null };
 
   return (
     <main className="flex-1 container mx-auto px-4 py-8">
@@ -155,6 +160,29 @@ export default async function HadithDetailPage({
             />
           </CardContent>
         </Card>
+
+        <div className="flex justify-between gap-4">
+          {prev ? (
+            <Link href={`/hadith/${bookSlug}/${prev.id}`}>
+              <Button variant="outline" size="sm">
+                <ArrowRight className="ml-2 size-4" />
+                حديث {prev.number}
+              </Button>
+            </Link>
+          ) : (
+            <div />
+          )}
+          {next ? (
+            <Link href={`/hadith/${bookSlug}/${next.id}`}>
+              <Button variant="outline" size="sm">
+                حديث {next.number}
+                <ArrowLeft className="mr-2 size-4" />
+              </Button>
+            </Link>
+          ) : (
+            <div />
+          )}
+        </div>
       </div>
     </main>
   );

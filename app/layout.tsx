@@ -44,6 +44,9 @@ export const metadata: Metadata = {
       { url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
     ],
   },
+  verification: {
+    google: "fgXIud_IWt2XmIdXE9hXYw7ThvGhOPvJu5LkIkoNGOM",
+  },
   openGraph: {
     title: "SHK Islam",
     description:

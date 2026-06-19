@@ -65,6 +65,7 @@ export function HadithCard({
               type="hadith"
             >
               <Button variant="ghost" size="sm">
+                {/* eslint-disable-next-line jsx-a11y/alt-text */}
                 <Image className="size-4" />
               </Button>
             </ExportModal>

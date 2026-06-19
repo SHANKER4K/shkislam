@@ -72,6 +72,7 @@ export default async function SurahPage({ params }: SurahPageProps) {
       <div className="max-w-3xl mx-auto flex flex-col gap-6">
         {ayahs.map((ayah) => (
           <VerseCard
+            key={ayah.id}
             ayahId={ayah.id}
             verseNumber={ayah.numberInSurah}
             textUthmani={ayah.textUthmani}

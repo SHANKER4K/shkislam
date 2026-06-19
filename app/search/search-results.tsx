@@ -44,7 +44,6 @@ function ResultCard({
   selected: boolean;
   onToggle: () => void;
 }) {
-  const resultId = `${result.type}-${result.id}`;
   const displayHtml = result.snippet || highlightText(result.text, query);
 
   return (

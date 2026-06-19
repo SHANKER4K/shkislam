@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "critical-reasoning": {
+      "source": "andrewgleave/skills",
+      "sourceType": "github",
+      "skillPath": "critical-reasoning/SKILL.md",
+      "computedHash": "2a306658ed977276a05d4c8ebb8a59a42ad971b7da530c3fa1d35378e0b5c6ef"
+    },
     "seo": {
       "source": "addyosmani/web-quality-skills",
       "sourceType": "github",

@@ -98,6 +98,7 @@ export default async function ThemePage({ params }: ThemePageProps) {
           <div className="space-y-4">
             {theme.ayahs.map((ayah) => (
               <VerseCard
+                key={ayah.id}
                 ayahId={ayah.id}
                 verseNumber={ayah.numberInSurah}
                 textUthmani={ayah.textUthmani}
@@ -121,6 +122,7 @@ export default async function ThemePage({ params }: ThemePageProps) {
           <div className="space-y-4">
             {theme.hadiths.map((hadith) => (
               <HadithCard
+                key={hadith.id}
                 hadithId={hadith.id}
                 number={hadith.hadithNumber}
                 text={hadith.text}

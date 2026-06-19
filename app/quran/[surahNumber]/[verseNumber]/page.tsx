@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { getAyahBySurahAndVerse } from "@/src/lib/quran";
+import { getAyahBySurahAndVerse, getAdjacentAyahs } from "@/src/lib/quran";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { VerseDetailActions } from "./verse-detail-actions";
 import { Breadcrumbs } from "@/src/components/breadcrumbs";
 import { CreativeWorkJsonLd } from "@/src/components/structured-data";
@@ -48,6 +48,8 @@ export default async function VerseDetailPage({
 
   const [ayah] = await getAyahBySurahAndVerse(surahNum, verseNum);
   if (!ayah) notFound();
+
+  const { prev, next } = await getAdjacentAyahs(ayah.surahId, ayah.numberInSurah);
 
   return (
     <main className="flex-1 container mx-auto px-4 py-8">
@@ -125,6 +127,29 @@ export default async function VerseDetailPage({
             />
           </CardContent>
         </Card>
+
+        <div className="flex justify-between gap-4">
+          {prev ? (
+            <Link href={`/quran/${surahNum}/${prev}`}>
+              <Button variant="outline" size="sm">
+                <ArrowRight className="ml-2 size-4" />
+                الآية {prev}
+              </Button>
+            </Link>
+          ) : (
+            <div />
+          )}
+          {next ? (
+            <Link href={`/quran/${surahNum}/${next}`}>
+              <Button variant="outline" size="sm">
+                الآية {next}
+                <ArrowLeft className="mr-2 size-4" />
+              </Button>
+            </Link>
+          ) : (
+            <div />
+          )}
+        </div>
       </div>
     </main>
   );

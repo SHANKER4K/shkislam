@@ -34,6 +34,7 @@ async function seedSurahs() {
     console.log("⏭️  Surahs already seeded, skipping");
     return;
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data = await fetchJSON<{ chapters: any[] }>(
     `${QURAN_API}/chapters?language=ar`,
   );
@@ -76,8 +77,9 @@ async function seedAyahs() {
 
   for (const surah of surahs) {
     // Fetch English translation once per surah
-    let transMap = new Map<number, string>();
+    const transMap = new Map<number, string>();
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const transData = await fetchJSON<{ translations: any[] }>(
         `${QURAN_API}/quran/translations/${SAHEEH_INTL_ID}?chapter_number=${surah.number}`,
       );
@@ -85,7 +87,7 @@ async function seedAyahs() {
         const textEn = stripFootnotes(transData.translations[i].text);
         if (textEn) transMap.set(i + 1, textEn);
       }
-    } catch (e) {
+    } catch {
       process.stdout.write(
         `\r  ⚠️ Translation failed for surah ${surah.number}`,
       );
@@ -95,6 +97,7 @@ async function seedAyahs() {
     let hasMore = true;
 
     while (hasMore) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = await fetchJSON<{ verses: any[]; pagination: any }>(
         `${QURAN_API}/verses/by_chapter/${surah.number}?language=ar&words=false&per_page=${BATCH_SIZE}&fields=text_uthmani&page=${page}`,
       );
@@ -104,6 +107,7 @@ async function seedAyahs() {
         break;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tafsirData = await fetchJSON<{ tafsirs: any[] }>(
         `${QURAN_API}/tafsirs/${TAFSIR_ID}/by_chapter/${surah.number}?language=ar&per_page=${BATCH_SIZE}&page=${page}`,
       );
@@ -188,15 +192,18 @@ async function seedHadiths() {
 
     // Fetch the entire Arabic edition to get section names and hadith data
     console.log(`  Fetching ${book.araSlug}...`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const araData = await fetchJSON<any>(`${HADITH_CDN}/${book.araSlug}.json`);
 
     const sectionNames: Record<string, string> =
       araData.metadata?.sections || {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sectionDetail: Record<string, any> =
       araData.metadata?.section_details || {};
 
     // Fetch English edition for section names, narrator, and english text
     console.log(`  Fetching ${book.engSlug}...`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const engData = await fetchJSON<any>(`${HADITH_CDN}/${book.engSlug}.json`);
     const engSections: Record<string, string> =
       engData.metadata?.sections || {};
@@ -239,6 +246,7 @@ async function seedHadiths() {
     // Determine which section each hadith belongs to
     function getChapterForHadith(hadithNum: number): number | null {
       for (const [sectionNum, detail] of Object.entries(sectionDetail)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const d = detail as any;
         const first = Math.floor(d.hadithnumber_first);
         const last = Math.floor(d.hadithnumber_last);

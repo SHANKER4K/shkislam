@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { HadithCard } from "@/src/components/hadith-card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -59,6 +58,7 @@ export function HadithList({ bookSlug, chapterOrder }: HadithListProps) {
     <div className="flex flex-col gap-4">
       {hadiths.map((hadith) => (
         <HadithCard
+          key={hadith.id}
           hadithId={hadith.id}
           number={hadith.number}
           text={hadith.text}

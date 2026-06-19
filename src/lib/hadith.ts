@@ -215,6 +215,24 @@ export async function getAllHadithsForSitemap() {
     .orderBy(asc(hadiths.id));
 }
 
+export async function getAdjacentHadiths(bookId: number, currentNumber: number) {
+  const [prev] = await db
+    .select({ id: hadiths.id, number: hadiths.number })
+    .from(hadiths)
+    .where(sql`${hadiths.bookId} = ${bookId} AND ${hadiths.number} < ${currentNumber}`)
+    .orderBy(desc(hadiths.number))
+    .limit(1);
+
+  const [next] = await db
+    .select({ id: hadiths.id, number: hadiths.number })
+    .from(hadiths)
+    .where(sql`${hadiths.bookId} = ${bookId} AND ${hadiths.number} > ${currentNumber}`)
+    .orderBy(asc(hadiths.number))
+    .limit(1);
+
+  return { prev: prev ?? null, next: next ?? null };
+}
+
 export type Hadith = typeof hadiths.$inferSelect;
 export type HadithBook = typeof hadithBooks.$inferSelect;
 export type HadithChapter = typeof hadithChapters.$inferSelect;
