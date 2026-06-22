@@ -33,6 +33,7 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  keywords: ['Islamic platform', 'Da\'iyahs', 'Khateebs', 'Islamic knowledge', 'Arabic content','shkislam','SHK Islam','ismail projects','shkislam.vercel.app', 'shkislam.com','shkislam.net','shkislam.org','shkislam.io','shkislam.co','shkislam.dev','shkislam.app','shkislam.online','shkislam.site','shkislam.tech','shk projects','shk islam','shk islamic platform','shk islamic web platform','shk islamic website','shk islamic online platform','shk islamic online website','shk islamic online service','shk islamic online application','shk islamic online app','shk islamic online tool','shk islamic online resource','hadiths','quran','islamic teachings','islamic education','islamic learning','islamic resources','islamic articles','islamic videos','islamic lectures','islamic sermons','islamic khutbahs','islamic dawah','islamic preaching','islamic speaking','islamic communication','islamic outreach'],
   icons: {
     icon: [
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
@@ -67,7 +68,8 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("h-full", "antialiased", tajawal.variable, uthmanic.variable, "font-sans", inter.variable)}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col animate-fade-in-up">
+        <div className="noise-overlay" aria-hidden="true" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

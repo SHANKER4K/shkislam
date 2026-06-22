@@ -93,8 +93,8 @@ export default async function VerseDetailPage({
               style={{ lineHeight: "2.2" }}
             >
               {ayah.textUthmani}
-              <span className="text-primary mx-2 font-arabic text-sm font-semibold">
-                ﴿{ayah.numberInSurah}﴾
+              <span className="inline-flex items-center justify-center size-7 rounded-full bg-primary/10 text-primary text-xs font-arabic font-semibold mx-2 align-middle">
+                {ayah.numberInSurah}
               </span>
             </div>
 

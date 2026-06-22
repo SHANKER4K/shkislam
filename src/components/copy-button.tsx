@@ -47,9 +47,14 @@ export function CopyButton({
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger
         render={
-          <Button className={className} variant={variant} size={size}>
+          <Button className={`${className} relative`} variant={variant} size={size}>
             {copied ? (
-              <Check className="size-4" />
+              <span className="relative">
+                <Check className="size-4" />
+                <span className="absolute inset-0 flex items-center justify-center animate-ping-small">
+                  <Check className="size-4" />
+                </span>
+              </span>
             ) : (
               <>
                 <ChevronDown className="size-3 mr-1" />

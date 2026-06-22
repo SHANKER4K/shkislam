@@ -24,7 +24,7 @@ export default async function HadithPage() {
         <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {books.map((book) => (
             <Link key={book.id} href={`/hadith/${book.slug}`}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="card-hover hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="p-6 flex items-center gap-4">
                   <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center">
                     <BookMarked className="size-6 text-primary" />

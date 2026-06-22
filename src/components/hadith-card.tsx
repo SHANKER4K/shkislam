@@ -37,16 +37,22 @@ export function HadithCard({
   const citationText = formatHadithCitation(text, bookNameAr, number, narrator);
 
   const gradeColor =
-    {
-      Sahih:
-        "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-      Hasan:
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-      Dhaeef: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-    }[grade] || "bg-gray-100 text-gray-800";
+    grade === "Sahih"
+      ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+      : grade === "Hasan"
+        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+        : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+
+  // ponytail: grade dot indicator — pure CSS, no icon dep
+  const gradeDot =
+    grade === "Sahih"
+      ? "bg-green-500"
+      : grade === "Hasan"
+        ? "bg-yellow-500"
+        : "bg-red-500";
 
   return (
-    <Card className="border shadow-sm">
+    <Card className="card-hover border shadow-sm">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2 flex-wrap">
@@ -56,7 +62,10 @@ export function HadithCard({
             <Badge variant="secondary" className="text-xs">
               حديث رقم {number}
             </Badge>
-            <Badge className={`text-xs ${gradeColor}`}>{grade}</Badge>
+            <Badge className={`text-xs ${gradeColor} flex items-center gap-1.5`}>
+              <span className={`size-1.5 rounded-full ${gradeDot}`} />
+              {grade === "Sahih" ? "صحيح" : grade === "Hasan" ? "حسن" : "ضعيف"}
+            </Badge>
           </div>
           <div className="flex items-center">
             <ExportModal

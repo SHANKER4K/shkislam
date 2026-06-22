@@ -39,7 +39,7 @@ export function GlobalSearchBar({
             placeholder="ابحث في القرآن الكريم والأحاديث النبوية..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pr-10 text-base"
+            className="w-full pr-10 text-base focus-visible:ring-2 focus-visible:ring-primary/20"
           />
         </div>
         {showTabs && (

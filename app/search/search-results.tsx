@@ -47,7 +47,7 @@ function ResultCard({
   const displayHtml = result.snippet || highlightText(result.text, query);
 
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer border-primary/50">
+    <Card className="card-hover hover:shadow-md transition-shadow cursor-pointer border-primary/50">
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <div className="pt-1">
@@ -269,7 +269,7 @@ export function SearchResults({ query, type }: SearchResultsProps) {
         )}
 
       {selectedIds.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="sticky bottom-6 right-1/2 translate-x-1/2 w-fit z-50">
           <Card className="shadow-lg border">
             <CardContent className="p-3 flex items-center gap-4">
               <span className="text-sm font-semibold">

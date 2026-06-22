@@ -63,11 +63,11 @@ export function Navbar() {
         </form>
 
         <nav className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
+              {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary/40 after:transition-all after:duration-200 hover:after:w-full"
             >
               {link.label}
             </Link>
