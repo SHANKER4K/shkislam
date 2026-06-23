@@ -319,11 +319,18 @@ async function seedFTS() {
     UPDATE ayahs SET search_vector = to_tsvector('arabic', text_simple)
   `);
 
-  // ponytail: hadiths have no text_simple column, strip diacritics in SQL
+  // hadiths: persist stripped text for FTS + trigram
   await db.execute(sql`
-    UPDATE hadiths SET search_vector = to_tsvector('arabic',
-      regexp_replace(text, '[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]', '', 'g')
-    )
+    ALTER TABLE hadiths ADD COLUMN IF NOT EXISTS text_simple text
+  `);
+  await db.execute(sql`
+    UPDATE hadiths SET text_simple = regexp_replace(
+      text, '[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]', '', 'g'
+    ) WHERE text_simple IS NULL
+  `);
+
+  await db.execute(sql`
+    UPDATE hadiths SET search_vector = to_tsvector('arabic', text_simple)
   `);
 
   console.log("✅ FTS vectors populated");

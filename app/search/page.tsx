@@ -24,7 +24,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <h2 className="font-arabic text-xl font-semibold mb-4">
             نتائج البحث عن: {q}
           </h2>
-          <SearchResults query={q} type={type || "all"} />
+          <SearchResults query={q} initialType={type || "all"} />
         </div>
       )}
     </main>

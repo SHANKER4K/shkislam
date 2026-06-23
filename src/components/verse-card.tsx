@@ -33,7 +33,7 @@ export function VerseCard({
   const citationText = formatVerseCitation(textUthmani, surahName, verseNumber);
 
   return (
-    <Card key={ayahId} className="card-hover border-0 shadow-none">
+    <Card key={ayahId} className="border-0 shadow-none">
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <div className="flex-1">

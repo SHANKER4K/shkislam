@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, ArrowLeft } from "lucide-react";
-import { separateSanadAndMatn } from "@/src/lib/citation";
 import { HadithDetailActions } from "./hadith-detail-actions";
 import { Breadcrumbs } from "@/src/components/breadcrumbs";
 import { CreativeWorkJsonLd } from "@/src/components/structured-data";
@@ -24,7 +23,7 @@ export async function generateMetadata({ params }: HadithDetailPageProps): Promi
   const [hadith] = await getHadithById(hadithId);
   if (!hadith || hadith.bookSlug !== bookSlug) return { title: "حديث غير موجود" };
 
-  const { matn } = separateSanadAndMatn(hadith.text);
+  const matn = hadith.matn || hadith.text;
   const desc = truncate(matn || hadith.text, 155);
 
   return {
@@ -48,7 +47,8 @@ export default async function HadithDetailPage({
   const [hadith] = await getHadithById(hadithId);
   if (!hadith || hadith.bookSlug !== bookSlug) notFound();
 
-  const { sanad, matn } = separateSanadAndMatn(hadith.text);
+  const { sanad, matn } = hadith;
+  // ponytail: sanad/matn come from BERT-populated hadiths_with_sanad_matn table
 
   const [book] = await getBookBySlug(bookSlug);
   const { prev, next } = book

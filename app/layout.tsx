@@ -68,8 +68,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("h-full", "antialiased", tajawal.variable, uthmanic.variable, "font-sans", inter.variable)}
     >
-      <body className="min-h-full flex flex-col animate-fade-in-up">
-        <div className="noise-overlay" aria-hidden="true" />
+      <body className="min-h-full flex flex-col">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

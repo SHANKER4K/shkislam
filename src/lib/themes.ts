@@ -1,6 +1,6 @@
 import { db } from "@/src/db";
 import { themes, themeAyahs, themeHadiths, ayahs, hadiths, surahs, hadithBooks } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql, desc } from "drizzle-orm";
 
 export interface Theme {
   id: number;
@@ -46,6 +46,26 @@ export async function getAllThemes(): Promise<Theme[]> {
     .from(themes)
     .where(eq(themes.status, "published"))
     .orderBy(themes.nameAr);
+}
+
+/**
+ * Find themes whose name matches the query via pg_trgm similarity.
+ * Called by thematic search — replaces old JS-side bigram matching.
+ */
+export async function searchThemesByName(
+  query: string,
+  threshold = 0.3,
+  limit = 5
+): Promise<Theme[]> {
+  if (!query.trim()) return [];
+  return db
+    .select()
+    .from(themes)
+    .where(
+      sql`${themes.status} = 'published' AND similarity(${themes.nameAr}, ${query}) > ${threshold}`
+    )
+    .orderBy(desc(sql`similarity(${themes.nameAr}, ${query})`))
+    .limit(limit);
 }
 
 export async function getAllThemesForSitemap(): Promise<Theme[]> {

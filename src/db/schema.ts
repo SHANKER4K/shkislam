@@ -101,6 +101,24 @@ export const hadiths = pgTable(
   ],
 );
 
+/**
+ * Mirror of hadiths + sanad/matn columns populated by a BERT model.
+ * Created outside Drizzle (raw SQL). Read-only reference.
+ */
+export const hadithsWithSanadMatn = pgTable("hadiths_with_sanad_matn", {
+  id: integer("id"),
+  chapterId: integer("chapter_id"),
+  bookId: integer("book_id"),
+  number: integer("number"),
+  narrator: text("narrator"),
+  text: text("text"),
+  textEn: text("text_en"),
+  grade: text("grade"),
+  sharh: text("sharh"),
+  sanad: text("sanad"),
+  matn: text("matn"),
+});
+
 export const themes = pgTable(
   "themes",
   {

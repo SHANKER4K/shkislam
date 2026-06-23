@@ -60,13 +60,13 @@ export async function searchAyahs(query: string) {
       numberInSurah: ayahs.numberInSurah,
       surahNameAr: surahs.nameAr,
       surahNumber: surahs.number,
-      rank: sql<number>`ts_rank_cd(${sql.raw("ayahs.search_vector")}, plainto_tsquery('arabic', ${trimmed}))::float`,
-      snippet: sql<string>`ts_headline('arabic', ${ayahs.textUthmani}, plainto_tsquery('arabic', ${trimmed}), 'StartSel=<b>, StopSel=</b>, MaxWords=60, MinWords=20')`,
+      rank: sql<number>`ts_rank_cd(${sql.raw("ayahs.search_vector")}, websearch_to_tsquery('arabic', ${trimmed}))::float`,
+      snippet: sql<string>`ts_headline('arabic', ${ayahs.textUthmani}, websearch_to_tsquery('arabic', ${trimmed}), 'StartSel=<b>, StopSel=</b>, MaxWords=60, MinWords=20')`,
     })
     .from(ayahs)
     .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
-    .where(sql`${sql.raw("ayahs.search_vector")} @@ plainto_tsquery('arabic', ${trimmed})`)
-    .orderBy(desc(sql`ts_rank_cd(${sql.raw("ayahs.search_vector")}, plainto_tsquery('arabic', ${trimmed}))`))
+    .where(sql`${sql.raw("ayahs.search_vector")} @@ websearch_to_tsquery('arabic', ${trimmed})`)
+    .orderBy(desc(sql`ts_rank_cd(${sql.raw("ayahs.search_vector")}, websearch_to_tsquery('arabic', ${trimmed}))`))
     .limit(50);
 
   if (ftsResults.length > 0) return ftsResults;
@@ -85,12 +85,12 @@ export async function searchAyahs(query: string) {
           numberInSurah: ayahs.numberInSurah,
           surahNameAr: surahs.nameAr,
           surahNumber: surahs.number,
-          rank: sql<number>`ts_rank_cd(${sql.raw("ayahs.search_vector")}, plainto_tsquery('arabic', ${word}))::float`,
-          snippet: sql<string>`ts_headline('arabic', ${ayahs.textUthmani}, plainto_tsquery('arabic', ${word}), 'StartSel=<b>, StopSel=</b>, MaxWords=60, MinWords=20')`,
+          rank: sql<number>`ts_rank_cd(${sql.raw("ayahs.search_vector")}, websearch_to_tsquery('arabic', ${word}))::float`,
+          snippet: sql<string>`ts_headline('arabic', ${ayahs.textUthmani}, websearch_to_tsquery('arabic', ${word}), 'StartSel=<b>, StopSel=</b>, MaxWords=60, MinWords=20')`,
         })
         .from(ayahs)
         .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
-        .where(sql`${sql.raw("ayahs.search_vector")} @@ plainto_tsquery('arabic', ${word})`)
+        .where(sql`${sql.raw("ayahs.search_vector")} @@ websearch_to_tsquery('arabic', ${word})`)
         .orderBy(desc(sql`ts_rank_cd(${sql.raw("ayahs.search_vector")}, plainto_tsquery('arabic', ${word}))`))
         .limit(20);
       for (const row of rows) {

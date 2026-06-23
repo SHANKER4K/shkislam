@@ -1,6 +1,6 @@
 import { searchAyahs } from "./quran";
 import { searchHadiths } from "./hadith";
-import { getAllThemes, getThemeBySlug } from "./themes";
+import { getAllThemes, getThemeBySlug, searchThemesByName } from "./themes";
 import { ArabicServices } from "arabic-services";
 
 export type SearchType = "quran" | "hadith" | "all";
@@ -82,53 +82,12 @@ async function literalSearch(query: string, type: SearchType) {
   return results.sort((a, b) => b.rank - a.rank);
 }
 
-/**
- * Calculate trigram-like similarity between two Arabic strings in JS.
- * Simple character n-gram approach for theme name matching.
- */
-function jsSimilarity(a: string, b: string): number {
-  if (!a || !b) return 0;
-  const strippedA = ArabicServices.removeTashkeel(a).toLowerCase();
-  const strippedB = ArabicServices.removeTashkeel(b).toLowerCase();
-
-  if (strippedA === strippedB) return 1;
-  if (strippedA.includes(strippedB) || strippedB.includes(strippedA)) return 0.8;
-
-  // Bigram overlap
-  const getBigrams = (s: string): Set<string> => {
-    const bigrams = new Set<string>();
-    for (let i = 0; i < s.length - 1; i++) {
-      bigrams.add(s.substring(i, i + 2));
-    }
-    return bigrams;
-  };
-
-  const bigramsA = getBigrams(strippedA);
-  const bigramsB = getBigrams(strippedB);
-
-  let overlap = 0;
-  for (const bg of bigramsA) {
-    if (bigramsB.has(bg)) overlap++;
-  }
-
-  const total = Math.max(bigramsA.size, bigramsB.size);
-  return total === 0 ? 0 : overlap / total;
-}
-
 async function thematicSearch(query: string, type: SearchType) {
   const results: SearchResult[] = [];
 
-  // Get all published themes
-  const allThemes = await getAllThemes();
-
-  // Check if query matches any theme name (using trigram-like similarity)
-  const matchingThemes = allThemes.filter((theme) => {
-    const sim = Math.max(
-      jsSimilarity(theme.nameAr, query),
-      jsSimilarity(theme.nameEn, query)
-    );
-    return sim > 0.3;
-  });
+  // Push theme matching to SQL via pg_trgm similarity
+  const stripped = ArabicServices.removeTashkeel(query);
+  const matchingThemes = await searchThemesByName(stripped);
 
   // Add curated results from matching themes
   for (const theme of matchingThemes) {
@@ -145,7 +104,7 @@ async function thematicSearch(query: string, type: SearchType) {
           subtitle: `الآية ${ayah.numberInSurah}`,
           text: ayah.textUthmani,
           snippet: null,
-          rank: 1000, // High rank for curated results
+          rank: 1000,
           surahName: ayah.surahName,
           surahNumber: ayah.surahNumber,
           verseNumber: ayah.numberInSurah,
@@ -166,7 +125,7 @@ async function thematicSearch(query: string, type: SearchType) {
           subtitle: `حديث رقم ${hadith.hadithNumber}${hadith.narrator ? ` - ${hadith.narrator}` : ""}`,
           text: hadith.text,
           snippet: null,
-          rank: 1000, // High rank for curated results
+          rank: 1000,
           bookNameAr: hadith.bookNameAr,
           hadithNumber: hadith.hadithNumber,
           narrator: hadith.narrator ?? undefined,

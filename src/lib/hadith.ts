@@ -1,11 +1,8 @@
 import { db } from "@/src/db";
-import { hadiths, hadithChapters, hadithBooks } from "@/src/db/schema";
+import { hadiths, hadithChapters, hadithBooks, hadithsWithSanadMatn } from "@/src/db/schema";
 import { eq, asc, sql, desc } from "drizzle-orm";
 import { ArabicServices } from "arabic-services";
 
-// Regex for stripping Arabic diacritics — used in SQL for hadiths (no text_simple column)
-const DIACRITICS_REGEX = "[\\u0610-\\u061A\\u064B-\\u065F\\u0670\\u06D6-\\u06ED\\u0640]";
-const STRIP_SQL = sql.raw(`regexp_replace(text, '${DIACRITICS_REGEX}', '', 'g')`);
 
 export async function getAllBooks() {
   return db.select().from(hadithBooks).orderBy(asc(hadithBooks.id));
@@ -25,6 +22,8 @@ export async function getHadithById(id: number) {
       textEn: hadiths.textEn,
       grade: hadiths.grade,
       sharh: hadiths.sharh,
+      sanad: hadithsWithSanadMatn.sanad,
+      matn: hadithsWithSanadMatn.matn,
       bookNameAr: hadithBooks.nameAr,
       bookNameEn: hadithBooks.nameEn,
       bookSlug: hadithBooks.slug,
@@ -34,6 +33,7 @@ export async function getHadithById(id: number) {
     .from(hadiths)
     .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
     .innerJoin(hadithChapters, eq(hadiths.chapterId, hadithChapters.id))
+    .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
     .where(eq(hadiths.id, id))
     .limit(1);
 }
@@ -62,6 +62,8 @@ export async function getHadithsByBookSlug(slug: string, chapterOrder?: number) 
         text: hadiths.text,
         grade: hadiths.grade,
         sharh: hadiths.sharh,
+        sanad: hadithsWithSanadMatn.sanad,
+        matn: hadithsWithSanadMatn.matn,
         bookNameAr: hadithBooks.nameAr,
         bookSlug: hadithBooks.slug,
         chapterNameAr: hadithChapters.nameAr,
@@ -70,6 +72,7 @@ export async function getHadithsByBookSlug(slug: string, chapterOrder?: number) 
       .from(hadiths)
       .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
       .innerJoin(hadithChapters, eq(hadiths.chapterId, hadithChapters.id))
+      .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
       .where(
         sql`${hadiths.bookId} = ${book[0].id} AND ${hadithChapters.order} = ${chapterOrder}`
       )
@@ -84,6 +87,8 @@ export async function getHadithsByBookSlug(slug: string, chapterOrder?: number) 
       text: hadiths.text,
       grade: hadiths.grade,
       sharh: hadiths.sharh,
+      sanad: hadithsWithSanadMatn.sanad,
+      matn: hadithsWithSanadMatn.matn,
       bookNameAr: hadithBooks.nameAr,
       bookSlug: hadithBooks.slug,
       chapterNameAr: hadithChapters.nameAr,
@@ -92,6 +97,7 @@ export async function getHadithsByBookSlug(slug: string, chapterOrder?: number) 
     .from(hadiths)
     .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
     .innerJoin(hadithChapters, eq(hadiths.chapterId, hadithChapters.id))
+    .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
     .where(eq(hadiths.bookId, book[0].id))
     .orderBy(asc(hadiths.number));
 }
@@ -110,15 +116,18 @@ export async function searchHadiths(query: string) {
       number: hadiths.number,
       narrator: hadiths.narrator,
       grade: hadiths.grade,
+      sanad: hadithsWithSanadMatn.sanad,
+      matn: hadithsWithSanadMatn.matn,
       bookNameAr: hadithBooks.nameAr,
       bookSlug: hadithBooks.slug,
-      rank: sql<number>`ts_rank_cd(${sql.raw("hadiths.search_vector")}, plainto_tsquery('arabic', ${trimmed}))::float`,
-      snippet: sql<string>`ts_headline('arabic', ${hadiths.text}, plainto_tsquery('arabic', ${trimmed}), 'StartSel=<b>, StopSel=</b>, MaxWords=60, MinWords=20')`,
+      rank: sql<number>`ts_rank_cd(${sql.raw("hadiths.search_vector")}, websearch_to_tsquery('arabic', ${trimmed}))::float`,
+      snippet: sql<string>`ts_headline('arabic', ${hadiths.text}, websearch_to_tsquery('arabic', ${trimmed}), 'StartSel=<b>, StopSel=</b>, MaxWords=60, MinWords=20')`,
     })
     .from(hadiths)
     .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
-    .where(sql`${sql.raw("hadiths.search_vector")} @@ plainto_tsquery('arabic', ${trimmed})`)
-    .orderBy(desc(sql`ts_rank_cd(${sql.raw("hadiths.search_vector")}, plainto_tsquery('arabic', ${trimmed}))`))
+    .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
+    .where(sql`${sql.raw("hadiths.search_vector")} @@ websearch_to_tsquery('arabic', ${trimmed})`)
+    .orderBy(desc(sql`ts_rank_cd(${sql.raw("hadiths.search_vector")}, websearch_to_tsquery('arabic', ${trimmed}))`))
     .limit(50);
 
   if (ftsResults.length > 0) return ftsResults;
@@ -137,15 +146,18 @@ export async function searchHadiths(query: string) {
           number: hadiths.number,
           narrator: hadiths.narrator,
           grade: hadiths.grade,
+          sanad: hadithsWithSanadMatn.sanad,
+          matn: hadithsWithSanadMatn.matn,
           bookNameAr: hadithBooks.nameAr,
           bookSlug: hadithBooks.slug,
-          rank: sql<number>`ts_rank_cd(${sql.raw("hadiths.search_vector")}, plainto_tsquery('arabic', ${word}))::float`,
-          snippet: sql<string>`ts_headline('arabic', ${hadiths.text}, plainto_tsquery('arabic', ${word}), 'StartSel=<b>, StopSel=</b>, MaxWords=60, MinWords=20')`,
+          rank: sql<number>`ts_rank_cd(${sql.raw("hadiths.search_vector")}, websearch_to_tsquery('arabic', ${word}))::float`,
+          snippet: sql<string>`ts_headline('arabic', ${hadiths.text}, websearch_to_tsquery('arabic', ${word}), 'StartSel=<b>, StopSel=</b>, MaxWords=60, MinWords=20')`,
         })
         .from(hadiths)
         .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
-        .where(sql`${sql.raw("hadiths.search_vector")} @@ plainto_tsquery('arabic', ${word})`)
-        .orderBy(desc(sql`ts_rank_cd(${sql.raw("hadiths.search_vector")}, plainto_tsquery('arabic', ${word}))`))
+        .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
+        .where(sql`${sql.raw("hadiths.search_vector")} @@ websearch_to_tsquery('arabic', ${word})`)
+        .orderBy(desc(sql`ts_rank_cd(${sql.raw("hadiths.search_vector")}, websearch_to_tsquery('arabic', ${word}))`))
         .limit(20);
       for (const row of rows) {
         if (!seen.has(row.id)) {
@@ -160,7 +172,7 @@ export async function searchHadiths(query: string) {
     }
   }
 
-  // Tier 3: Trigram (cleaned query)
+  // Tier 3: Trigram (cleaned query) — now uses persisted text_simple column
   const cleaned = words.join(" ");
   if (!cleaned) return [];
 
@@ -171,15 +183,18 @@ export async function searchHadiths(query: string) {
       number: hadiths.number,
       narrator: hadiths.narrator,
       grade: hadiths.grade,
+      sanad: hadithsWithSanadMatn.sanad,
+      matn: hadithsWithSanadMatn.matn,
       bookNameAr: hadithBooks.nameAr,
       bookSlug: hadithBooks.slug,
-      rank: sql<number>`similarity(${STRIP_SQL}, ${cleaned})::float`,
+      rank: sql<number>`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned})::float`,
       snippet: sql<string>`NULL`,
     })
     .from(hadiths)
     .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
-    .where(sql`similarity(${STRIP_SQL}, ${cleaned}) > 0.15`)
-    .orderBy(desc(sql`similarity(${STRIP_SQL}, ${cleaned})`))
+    .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
+    .where(sql`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned}) > 0.15`)
+    .orderBy(desc(sql`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned})`))
     .limit(50);
 
   if (trigramResults.length > 0) return trigramResults;
@@ -193,6 +208,8 @@ export async function searchHadiths(query: string) {
       number: hadiths.number,
       narrator: hadiths.narrator,
       grade: hadiths.grade,
+      sanad: hadithsWithSanadMatn.sanad,
+      matn: hadithsWithSanadMatn.matn,
       bookNameAr: hadithBooks.nameAr,
       bookSlug: hadithBooks.slug,
       rank: sql<number>`0.1::float`,
@@ -200,7 +217,8 @@ export async function searchHadiths(query: string) {
     })
     .from(hadiths)
     .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
-    .where(sql`${STRIP_SQL} ILIKE ${likePattern}`)
+    .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
+    .where(sql`${sql.raw("hadiths.text_simple")} ILIKE ${likePattern}`)
     .limit(50);
 }
 

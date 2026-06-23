@@ -69,7 +69,7 @@ export default function HomePage() {
 
           {/* Hadith — right side */}
           <Link href="/hadith" className="group">
-            <Card className="card-hover border-border/60 h-full cursor-pointer overflow-hidden">
+            <Card className="border-border/60 h-full cursor-pointer overflow-hidden">
               <div className="h-1 bg-secondary/40" />
               <CardContent className="p-6 md:p-8">
                 <div className="flex flex-col items-start gap-4">
@@ -93,7 +93,7 @@ export default function HomePage() {
 
           {/* Themes — full width on mobile, third column on desktop */}
           <Link href="/themes" className="md:col-start-1 group">
-            <Card className="card-hover border-border/60 h-full cursor-pointer overflow-hidden">
+            <Card className="border-border/60 h-full cursor-pointer overflow-hidden">
               <div className="h-1 bg-accent/40" />
               <CardContent className="p-6 md:p-8">
                 <div className="flex flex-col items-start gap-4">

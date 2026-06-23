@@ -11,6 +11,8 @@ interface Hadith {
   text: string;
   grade: string;
   sharh: string | null;
+  sanad: string | null;
+  matn: string | null;
   bookNameAr: string;
   bookSlug: string;
   chapterNameAr: string;
@@ -67,6 +69,8 @@ export function HadithList({ bookSlug, chapterOrder }: HadithListProps) {
           bookSlug={hadith.bookSlug}
           grade={hadith.grade}
           sharh={hadith.sharh}
+          sanad={hadith.sanad}
+          matn={hadith.matn}
         />
       ))}
     </div>

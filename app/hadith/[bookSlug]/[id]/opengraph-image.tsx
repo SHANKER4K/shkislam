@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 import { getHadithById } from "@/src/lib/hadith";
-import { separateSanadAndMatn } from "@/src/lib/citation";
 
 export const contentType = "image/png";
 export const size = { width: 1200, height: 630 };
@@ -14,7 +13,7 @@ export default async function Image({
   const hadithId = parseInt(id);
 
   const [hadith] = await getHadithById(hadithId);
-  const { matn } = hadith ? separateSanadAndMatn(hadith.text) : { matn: "" };
+  const matn = hadith?.matn || hadith?.text || "";
 
   const title = hadith
     ? `${hadith.bookNameAr} - حديث رقم ${hadith.number}`

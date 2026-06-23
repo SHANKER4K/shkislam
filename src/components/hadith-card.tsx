@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Image } from "lucide-react";
 import { CopyButton } from "./copy-button";
 import { ExportModal } from "./export-modal";
-import { formatHadithCitation, separateSanadAndMatn } from "@/src/lib/citation";
+import { formatHadithCitation } from "@/src/lib/citation";
 import Link from "next/link";
 
 interface HadithCardProps {
@@ -18,6 +18,8 @@ interface HadithCardProps {
   bookNameAr: string;
   bookSlug: string;
   grade: string;
+  sanad?: string | null;
+  matn?: string | null;
   sharh?: string | null;
 }
 
@@ -29,11 +31,12 @@ export function HadithCard({
   bookNameAr,
   bookSlug,
   grade,
+  sanad,
+  matn,
   sharh,
 }: HadithCardProps) {
   const [showSharh, setShowSharh] = useState(false);
 
-  const { sanad, matn } = separateSanadAndMatn(text);
   const citationText = formatHadithCitation(text, bookNameAr, number, narrator);
 
   const gradeColor =
@@ -52,7 +55,7 @@ export function HadithCard({
         : "bg-red-500";
 
   return (
-    <Card className="card-hover border shadow-sm">
+    <Card className="border shadow-sm">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2 flex-wrap">
@@ -62,7 +65,9 @@ export function HadithCard({
             <Badge variant="secondary" className="text-xs">
               حديث رقم {number}
             </Badge>
-            <Badge className={`text-xs ${gradeColor} flex items-center gap-1.5`}>
+            <Badge
+              className={`text-xs ${gradeColor} flex items-center gap-1.5`}
+            >
               <span className={`size-1.5 rounded-full ${gradeDot}`} />
               {grade === "Sahih" ? "صحيح" : grade === "Hasan" ? "حسن" : "ضعيف"}
             </Badge>

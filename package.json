@@ -12,6 +12,7 @@
     "db:push": "bunx drizzle-kit push",
     "db:seed": "bun run src/db/seed.ts",
     "db:seed-themes": "bun run src/db/seed-themes.ts",
+    "db:migrate-search": "bun run src/db/migrate-search.ts",
     "assets:generate": "bash scripts/generate-assets.sh"
   },
   "dependencies": {

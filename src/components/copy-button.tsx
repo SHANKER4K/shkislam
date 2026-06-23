@@ -49,12 +49,7 @@ export function CopyButton({
         render={
           <Button className={`${className} relative`} variant={variant} size={size}>
             {copied ? (
-              <span className="relative">
-                <Check className="size-4" />
-                <span className="absolute inset-0 flex items-center justify-center animate-ping-small">
-                  <Check className="size-4" />
-                </span>
-              </span>
+              <Check className="size-4" />
             ) : (
               <>
                 <ChevronDown className="size-3 mr-1" />

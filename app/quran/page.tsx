@@ -24,7 +24,7 @@ export default async function QuranPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {surahs.map((surah) => (
             <Link key={surah.id} href={`/quran/${surah.number}`}>
-              <Card className="card-hover hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="p-4 flex items-center gap-3">
                   <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
                     {surah.number}

@@ -28,7 +28,7 @@ export default async function ThemesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {themes.map((theme) => (
             <Link key={theme.id} href={`/themes/${theme.slug}`}>
-              <Card className="card-hover hover:shadow-md transition-shadow cursor-pointer h-full">
+              <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                 <CardContent className="p-6">
                   <h2 className="text-xl font-bold font-arabic mb-2">
                     {theme.nameAr}
