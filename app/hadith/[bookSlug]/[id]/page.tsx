@@ -100,7 +100,7 @@ export default async function HadithDetailPage({
           )}
         </div>
 
-        <Card className="w-screen">
+        <Card>
           <CardContent className="p-6 space-y-4">
             <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="secondary">حديث رقم {hadith.number}</Badge>
