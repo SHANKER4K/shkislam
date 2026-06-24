@@ -43,9 +43,18 @@ export async function getChaptersByBookSlug(slug: string) {
   if (book.length === 0) return [];
 
   return db
-    .select()
+    .select({
+      id: hadithChapters.id,
+      bookId: hadithChapters.bookId,
+      nameAr: hadithChapters.nameAr,
+      nameEn: hadithChapters.nameEn,
+      order: hadithChapters.order,
+      hadithCount: sql<number>`CAST(COUNT(${hadiths.id}) AS INTEGER)`,
+    })
     .from(hadithChapters)
+    .leftJoin(hadiths, eq(hadiths.chapterId, hadithChapters.id))
     .where(eq(hadithChapters.bookId, book[0].id))
+    .groupBy(hadithChapters.id)
     .orderBy(asc(hadithChapters.order));
 }
 

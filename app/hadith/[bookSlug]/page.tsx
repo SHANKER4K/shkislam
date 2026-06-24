@@ -4,21 +4,17 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
-import { HadithList } from "./hadith-list";
 import { Breadcrumbs } from "@/src/components/breadcrumbs";
 import { SITE_URL, SITE_NAME } from "@/src/lib/seo";
+import { ChapterCards } from "./chapter-cards";
 
 interface HadithBookPageProps {
   params: Promise<{ bookSlug: string }>;
 }
 
-export async function generateMetadata({ params }: HadithBookPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: HadithBookPageProps): Promise<Metadata> {
   const { bookSlug } = await params;
   const [book] = await getBookBySlug(bookSlug);
   if (!book) return { title: "كتاب غير موجود" };
@@ -34,7 +30,9 @@ export async function generateMetadata({ params }: HadithBookPageProps): Promise
   };
 }
 
-export default async function HadithBookPage({ params }: HadithBookPageProps) {
+export default async function HadithBookPage({
+  params,
+}: HadithBookPageProps) {
   const { bookSlug } = await params;
 
   const [book] = await getBookBySlug(bookSlug);
@@ -64,20 +62,16 @@ export default async function HadithBookPage({ params }: HadithBookPageProps) {
         <p className="text-muted-foreground">{book.nameEn}</p>
       </div>
 
-      <div className="max-w-3xl mx-auto space-y-2">
-        {chapters.map((chapter) => (
-          <Accordion key={chapter.id}>
-            <AccordionItem key={chapter.id} value={`chapter-${chapter.order}`}>
-              <AccordionTrigger className="font-arabic text-base px-4">
-                {chapter.nameEn} - {chapter.nameAr}
-              </AccordionTrigger>
-              <AccordionContent dir="rtl">
-                <HadithList bookSlug={bookSlug} chapterOrder={chapter.order} />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        ))}
-      </div>
+      <ChapterCards
+        bookSlug={bookSlug}
+        chapters={chapters.map((c) => ({
+          id: c.id,
+          order: c.order,
+          nameAr: c.nameAr,
+          nameEn: c.nameEn ?? "",
+          hadithCount: c.hadithCount,
+        }))}
+      />
     </main>
   );
 }

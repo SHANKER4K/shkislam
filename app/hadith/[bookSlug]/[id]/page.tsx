@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { getHadithById, getAdjacentHadiths, getBookBySlug } from "@/src/lib/hadith";
+import {
+  getHadithById,
+  getAdjacentHadiths,
+  getBookBySlug,
+} from "@/src/lib/hadith";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -15,13 +19,16 @@ interface HadithDetailPageProps {
   params: Promise<{ bookSlug: string; id: string }>;
 }
 
-export async function generateMetadata({ params }: HadithDetailPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: HadithDetailPageProps): Promise<Metadata> {
   const { bookSlug, id } = await params;
   const hadithId = parseInt(id);
   if (isNaN(hadithId)) return { title: "حديث غير موجود" };
 
   const [hadith] = await getHadithById(hadithId);
-  if (!hadith || hadith.bookSlug !== bookSlug) return { title: "حديث غير موجود" };
+  if (!hadith || hadith.bookSlug !== bookSlug)
+    return { title: "حديث غير موجود" };
 
   const matn = hadith.matn || hadith.text;
   const desc = truncate(matn || hadith.text, 155);
@@ -93,7 +100,7 @@ export default async function HadithDetailPage({
           )}
         </div>
 
-        <Card>
+        <Card className="w-screen">
           <CardContent className="p-6 space-y-4">
             <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="secondary">حديث رقم {hadith.number}</Badge>

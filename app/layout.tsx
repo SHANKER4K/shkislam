@@ -4,6 +4,7 @@ import { Tajawal, Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { Navbar } from "@/src/components/navbar";
+import { ReadingProgressProvider } from "@/src/lib/reading-progress";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -84,9 +85,11 @@ export default function RootLayout({
           }}
         />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <Navbar />
-          {children}
-          <Toaster position="top-center" dir="rtl" />
+          <ReadingProgressProvider>
+            <Navbar />
+            {children}
+            <Toaster position="top-center" dir="rtl" />
+          </ReadingProgressProvider>
         </ThemeProvider>
       </body>
     </html>
