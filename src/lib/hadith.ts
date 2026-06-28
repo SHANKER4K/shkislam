@@ -116,8 +116,36 @@ export async function searchHadiths(query: string) {
 
   const trimmed = query.trim();
   const stripped = ArabicServices.removeTashkeel(trimmed);
+  const words = stripped.split(/\s+/).filter((w) => w.length >= 2);
+  const cleaned = words.join(" ");
 
-  // Tier 1: FTS full query
+  // Tier 1: Trigram (now uses persisted text_simple column)
+  if (cleaned) {
+    const trigramResults = await db
+      .select({
+        id: hadiths.id,
+        text: hadiths.text,
+        number: hadiths.number,
+        narrator: hadiths.narrator,
+        grade: hadiths.grade,
+        sanad: hadithsWithSanadMatn.sanad,
+        matn: hadithsWithSanadMatn.matn,
+        bookNameAr: hadithBooks.nameAr,
+        bookSlug: hadithBooks.slug,
+        rank: sql<number>`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned})::float`,
+        snippet: sql<string>`NULL`,
+      })
+      .from(hadiths)
+      .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
+      .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
+      .where(sql`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned}) > 0.15`)
+      .orderBy(desc(sql`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned})`))
+      .limit(50);
+
+    if (trigramResults.length > 0) return trigramResults;
+  }
+
+  // Tier 2: FTS full query
   const ftsResults = await db
     .select({
       id: hadiths.id,
@@ -141,9 +169,7 @@ export async function searchHadiths(query: string) {
 
   if (ftsResults.length > 0) return ftsResults;
 
-  // Tier 2: FTS per-word
-  // ponytail: single-char Arabic letters match everything, skip them
-  const words = stripped.split(/\s+/).filter((w) => w.length >= 2);
+  // Tier 3: FTS per-word
   if (words.length > 0) {
     const seen = new Set<number>();
     const perWordResults: typeof ftsResults = [];
@@ -181,34 +207,8 @@ export async function searchHadiths(query: string) {
     }
   }
 
-  // Tier 3: Trigram (cleaned query) — now uses persisted text_simple column
-  const cleaned = words.join(" ");
-  if (!cleaned) return [];
-
-  const trigramResults = await db
-    .select({
-      id: hadiths.id,
-      text: hadiths.text,
-      number: hadiths.number,
-      narrator: hadiths.narrator,
-      grade: hadiths.grade,
-      sanad: hadithsWithSanadMatn.sanad,
-      matn: hadithsWithSanadMatn.matn,
-      bookNameAr: hadithBooks.nameAr,
-      bookSlug: hadithBooks.slug,
-      rank: sql<number>`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned})::float`,
-      snippet: sql<string>`NULL`,
-    })
-    .from(hadiths)
-    .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
-    .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
-    .where(sql`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned}) > 0.15`)
-    .orderBy(desc(sql`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned})`))
-    .limit(50);
-
-  if (trigramResults.length > 0) return trigramResults;
-
   // Tier 4: LIKE fallback
+  if (!cleaned) return [];
   const likePattern = `%${cleaned}%`;
   return db
     .select({

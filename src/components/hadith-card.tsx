@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Image } from "lucide-react";
 import { CopyButton } from "./copy-button";
 import { ExportModal } from "./export-modal";
+import { FavoriteButton } from "./favorite-button";
+import { useFavorites, type FavoriteItem } from "@/src/lib/use-favorites";
 import { formatHadithCitation } from "@/src/lib/citation";
 import Link from "next/link";
 
@@ -21,6 +23,8 @@ interface HadithCardProps {
   sanad?: string | null;
   matn?: string | null;
   sharh?: string | null;
+  chapterTitle?: string;
+  chapterOrder?: number;
 }
 
 export function HadithCard({
@@ -34,8 +38,11 @@ export function HadithCard({
   sanad,
   matn,
   sharh,
+  chapterTitle,
+  chapterOrder,
 }: HadithCardProps) {
   const [showSharh, setShowSharh] = useState(false);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   const citationText = formatHadithCitation(text, bookNameAr, number, narrator);
 
@@ -73,6 +80,22 @@ export function HadithCard({
             </Badge>
           </div>
           <div className="flex items-center">
+            <FavoriteButton
+              isFavorited={isFavorite(`hadith-${hadithId}`)}
+              onToggle={() =>
+                toggleFavorite({
+                  type: "hadith",
+                  hadithId,
+                  text,
+                  narrator: narrator || null,
+                  grade,
+                  bookNameAr,
+                  bookSlug,
+                  chapterTitle,
+                  chapterOrder,
+                } as FavoriteItem)
+              }
+            />
             <ExportModal
               text={matn || text}
               source={`${bookNameAr} - حديث رقم ${number}`}

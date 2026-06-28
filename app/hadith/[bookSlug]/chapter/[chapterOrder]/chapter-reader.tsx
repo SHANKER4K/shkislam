@@ -194,6 +194,8 @@ export function ChapterReader({
             sanad={current.sanad}
             matn={current.matn}
             sharh={current.sharh}
+            chapterTitle={chapterNameAr}
+            chapterOrder={chapterOrder}
           />
         </div>
       )}

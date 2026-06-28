@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Image } from "lucide-react";
 import { CopyButton } from "./copy-button";
 import { ExportModal } from "./export-modal";
+import { FavoriteButton } from "./favorite-button";
+import { useFavorites, type FavoriteItem } from "@/src/lib/use-favorites";
 import { formatVerseCitation } from "@/src/lib/citation";
 import Link from "next/link";
 
@@ -29,6 +31,7 @@ export function VerseCard({
   fontSize = 28,
 }: VerseCardProps) {
   const [showTafsir, setShowTafsir] = useState(false);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   const citationText = formatVerseCitation(textUthmani, surahName, verseNumber);
 
@@ -77,6 +80,18 @@ export function VerseCard({
             )}
           </div>
 
+          <FavoriteButton
+            isFavorited={isFavorite(`ayah-${surahNumber}-${verseNumber}`)}
+            onToggle={() =>
+              toggleFavorite({
+                type: "ayah",
+                surahNumber,
+                verseNumber,
+                textUthmani,
+                surahNameAr: surahName,
+              } as FavoriteItem)
+            }
+          />
           <CopyButton text={textUthmani} citationText={citationText} />
           <ExportModal
             text={textUthmani}

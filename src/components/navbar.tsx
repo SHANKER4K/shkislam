@@ -15,6 +15,7 @@ const navLinks = [
   { href: "/quran", label: "القرآن الكريم" },
   { href: "/hadith", label: "الأحاديث النبوية" },
   { href: "/themes", label: "المواضيع" },
+  { href: "/favorites", label: "المفضلة" },
 ];
 
 export function Navbar() {

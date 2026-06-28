@@ -52,7 +52,32 @@ export async function searchAyahs(query: string) {
   const trimmed = query.trim();
   const stripped = ArabicServices.removeTashkeel(trimmed);
 
-  // Tier 1: FTS full query
+  // Tier 1: Trigram (character-level, works with Uthmani orthography)
+  // ponytail: trigram before FTS because the arabic snowball stemmer can't handle
+  // Uthmani Quranic script. Trigram catches what the stemmer misses.
+  const words = stripped.split(/\s+/).filter((w) => w.length >= 2);
+  const cleaned = words.join(" ");
+  if (cleaned) {
+    const trigramResults = await db
+      .select({
+        id: ayahs.id,
+        textUthmani: ayahs.textUthmani,
+        numberInSurah: ayahs.numberInSurah,
+        surahNameAr: surahs.nameAr,
+        surahNumber: surahs.number,
+        rank: sql<number>`similarity(${ayahs.textSimple}, ${cleaned})::float`,
+        snippet: sql<string>`NULL`,
+      })
+      .from(ayahs)
+      .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
+      .where(sql`similarity(${ayahs.textSimple}, ${cleaned}) > 0.15`)
+      .orderBy(desc(sql`similarity(${ayahs.textSimple}, ${cleaned})`))
+      .limit(50);
+
+    if (trigramResults.length > 0) return trigramResults;
+  }
+
+  // Tier 2: FTS full query (websearch syntax: "phrase", -exclude, OR)
   const ftsResults = await db
     .select({
       id: ayahs.id,
@@ -71,9 +96,7 @@ export async function searchAyahs(query: string) {
 
   if (ftsResults.length > 0) return ftsResults;
 
-  // Tier 2: FTS per-word (try each meaningful word separately, combine)
-  // ponytail: single-char Arabic letters (ب, ل, ك, و...) match everything, skip them
-  const words = stripped.split(/\s+/).filter((w) => w.length >= 2);
+  // Tier 3: FTS per-word
   if (words.length > 0) {
     const seen = new Set<number>();
     const perWordResults: typeof ftsResults = [];
@@ -106,30 +129,9 @@ export async function searchAyahs(query: string) {
     }
   }
 
-  // Tier 3: Trigram (cleaned query — meaningful words only)
-  const cleaned = words.join(" ");
-  if (!cleaned) return [];
-
-  const likePattern = `%${cleaned}%`;
-  const trigramResults = await db
-    .select({
-      id: ayahs.id,
-      textUthmani: ayahs.textUthmani,
-      numberInSurah: ayahs.numberInSurah,
-      surahNameAr: surahs.nameAr,
-      surahNumber: surahs.number,
-      rank: sql<number>`similarity(${ayahs.textSimple}, ${cleaned})::float`,
-      snippet: sql<string>`NULL`,
-    })
-    .from(ayahs)
-    .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
-    .where(sql`similarity(${ayahs.textSimple}, ${cleaned}) > 0.15`)
-    .orderBy(desc(sql`similarity(${ayahs.textSimple}, ${cleaned})`))
-    .limit(50);
-
-  if (trigramResults.length > 0) return trigramResults;
-
   // Tier 4: LIKE fallback
+  if (!cleaned) return [];
+  const likePattern = `%${cleaned}%`;
   return db
     .select({
       id: ayahs.id,
@@ -161,19 +163,23 @@ export async function getAdjacentAyahs(surahId: number, currentNumber: number) {
   const [prev] = await db
     .select({ numberInSurah: ayahs.numberInSurah })
     .from(ayahs)
-    .where(sql`${ayahs.surahId} = ${surahId} AND ${ayahs.numberInSurah} < ${currentNumber}`)
+    .where(
+      sql`${ayahs.surahId} = ${surahId} AND ${ayahs.numberInSurah} < ${currentNumber}`,
+    )
     .orderBy(desc(ayahs.numberInSurah))
     .limit(1);
 
   const [next] = await db
     .select({ numberInSurah: ayahs.numberInSurah })
     .from(ayahs)
-    .where(sql`${ayahs.surahId} = ${surahId} AND ${ayahs.numberInSurah} > ${currentNumber}`)
+    .where(
+      sql`${ayahs.surahId} = ${surahId} AND ${ayahs.numberInSurah} > ${currentNumber}`,
+    )
     .orderBy(asc(ayahs.numberInSurah))
     .limit(1);
 
-  return { prev: prev?.numberInSurah ?? null, next: next?.numberInSurah ?? null };
+  return {
+    prev: prev?.numberInSurah ?? null,
+    next: next?.numberInSurah ?? null,
+  };
 }
-
-export type Surah = typeof surahs.$inferSelect;
-export type Ayah = typeof ayahs.$inferSelect;
