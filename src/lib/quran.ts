@@ -1,7 +1,7 @@
 import { db } from "@/src/db";
 import { surahs, ayahs } from "@/src/db/schema";
 import { eq, asc, sql, desc } from "drizzle-orm";
-import { ArabicServices } from "arabic-services";
+import { searchQuranAyahs as engineSearch } from "@/src/lib/quran-search-engine";
 
 export async function getAllSurahs() {
   return db.select().from(surahs).orderBy(asc(surahs.number));
@@ -48,104 +48,7 @@ export async function getAyahBySurahAndVerse(surahNumber: number, verseNumber: n
 
 export async function searchAyahs(query: string) {
   if (!query.trim()) return [];
-
-  const trimmed = query.trim();
-  const stripped = ArabicServices.removeTashkeel(trimmed);
-
-  // Tier 1: Trigram (character-level, works with Uthmani orthography)
-  // ponytail: trigram before FTS because the arabic snowball stemmer can't handle
-  // Uthmani Quranic script. Trigram catches what the stemmer misses.
-  const words = stripped.split(/\s+/).filter((w) => w.length >= 2);
-  const cleaned = words.join(" ");
-  if (cleaned) {
-    const trigramResults = await db
-      .select({
-        id: ayahs.id,
-        textUthmani: ayahs.textUthmani,
-        numberInSurah: ayahs.numberInSurah,
-        surahNameAr: surahs.nameAr,
-        surahNumber: surahs.number,
-        rank: sql<number>`similarity(${ayahs.textSimple}, ${cleaned})::float`,
-        snippet: sql<string>`NULL`,
-      })
-      .from(ayahs)
-      .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
-      .where(sql`similarity(${ayahs.textSimple}, ${cleaned}) > 0.15`)
-      .orderBy(desc(sql`similarity(${ayahs.textSimple}, ${cleaned})`))
-      .limit(50);
-
-    if (trigramResults.length > 0) return trigramResults;
-  }
-
-  // Tier 2: FTS full query (websearch syntax: "phrase", -exclude, OR)
-  const ftsResults = await db
-    .select({
-      id: ayahs.id,
-      textUthmani: ayahs.textUthmani,
-      numberInSurah: ayahs.numberInSurah,
-      surahNameAr: surahs.nameAr,
-      surahNumber: surahs.number,
-      rank: sql<number>`ts_rank_cd(${sql.raw("ayahs.search_vector")}, websearch_to_tsquery('arabic', ${trimmed}))::float`,
-      snippet: sql<string>`ts_headline('arabic', ${ayahs.textUthmani}, websearch_to_tsquery('arabic', ${trimmed}), 'StartSel=<b>, StopSel=</b>, MaxWords=60, MinWords=20')`,
-    })
-    .from(ayahs)
-    .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
-    .where(sql`${sql.raw("ayahs.search_vector")} @@ websearch_to_tsquery('arabic', ${trimmed})`)
-    .orderBy(desc(sql`ts_rank_cd(${sql.raw("ayahs.search_vector")}, websearch_to_tsquery('arabic', ${trimmed}))`))
-    .limit(50);
-
-  if (ftsResults.length > 0) return ftsResults;
-
-  // Tier 3: FTS per-word
-  if (words.length > 0) {
-    const seen = new Set<number>();
-    const perWordResults: typeof ftsResults = [];
-    for (const word of words) {
-      const rows = await db
-        .select({
-          id: ayahs.id,
-          textUthmani: ayahs.textUthmani,
-          numberInSurah: ayahs.numberInSurah,
-          surahNameAr: surahs.nameAr,
-          surahNumber: surahs.number,
-          rank: sql<number>`ts_rank_cd(${sql.raw("ayahs.search_vector")}, websearch_to_tsquery('arabic', ${word}))::float`,
-          snippet: sql<string>`ts_headline('arabic', ${ayahs.textUthmani}, websearch_to_tsquery('arabic', ${word}), 'StartSel=<b>, StopSel=</b>, MaxWords=60, MinWords=20')`,
-        })
-        .from(ayahs)
-        .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
-        .where(sql`${sql.raw("ayahs.search_vector")} @@ websearch_to_tsquery('arabic', ${word})`)
-        .orderBy(desc(sql`ts_rank_cd(${sql.raw("ayahs.search_vector")}, plainto_tsquery('arabic', ${word}))`))
-        .limit(20);
-      for (const row of rows) {
-        if (!seen.has(row.id)) {
-          seen.add(row.id);
-          perWordResults.push(row);
-        }
-      }
-    }
-    if (perWordResults.length > 0) {
-      perWordResults.sort((a, b) => b.rank - a.rank);
-      return perWordResults.slice(0, 50);
-    }
-  }
-
-  // Tier 4: LIKE fallback
-  if (!cleaned) return [];
-  const likePattern = `%${cleaned}%`;
-  return db
-    .select({
-      id: ayahs.id,
-      textUthmani: ayahs.textUthmani,
-      numberInSurah: ayahs.numberInSurah,
-      surahNameAr: surahs.nameAr,
-      surahNumber: surahs.number,
-      rank: sql<number>`0.1::float`,
-      snippet: sql<string>`NULL`,
-    })
-    .from(ayahs)
-    .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
-    .where(sql`${ayahs.textSimple} ILIKE ${likePattern}`)
-    .limit(50);
+  return engineSearch(query);
 }
 
 export async function getAllAyahsForSitemap() {

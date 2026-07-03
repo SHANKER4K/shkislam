@@ -49,6 +49,7 @@ bun run lint             # eslint (no typecheck — strict: false)
 bun run db:push          # push Drizzle schema to DB
 bun run db:seed          # seed Quran + hadith data (re-runnable)
 bun run db:seed-themes   # seed theme data
+bun run db:migrate-search  # run search migration (pg_trgm + indexes + text_simple for hadith)
 ```
 
 **DB setup order:** `db:push` → `db:seed` → `db:seed-themes`. Re-seeding rebuilds `search_vector` and `textSimple` for ALL rows.
@@ -60,22 +61,24 @@ bun run db:seed-themes   # seed theme data
 - **shadcn/ui** (radix-vega style) + **Tailwind CSS v4**
 - Deploys to **Vercel**
 
-### Search (4-tier fallback)
+### Search — two backends
 
-`src/lib/quran.ts`, `src/lib/hadith.ts`, `src/lib/search.ts`:
+**Quran:** `quran-search-engine` npm package (bundled text + morphology data). No DB queries. Wrapped in `src/lib/quran-search-engine.ts` (singleton, LRU-cached). Returns lemma/root/exact matches with scores. Extended Arabic chars (U+08F0-08F2) normalized to standard equivalents for font compatibility.
 
-1. **FTS** — `plainto_tsquery('arabic', stripped_query)` against `search_vector` column
+**Hadith:** 4-tier DB fallback in `src/lib/hadith.ts`:
+
+1. **FTS** — `websearch_to_tsquery('arabic', ...)` against `search_vector`
 2. **Per-word FTS** — split query, try each word separately
-3. **Trigram** — `similarity()` against `text_simple` (ayahs) or SQL-stripped text (hadiths)
+3. **Trigram** — `similarity()` against `text_simple`
 4. **LIKE** — `ILIKE` fallback
 
-Query stripping uses `ArabicServices.removeTashkeel` (not regex). `search_vector` is built from `text_simple` (not `text_uthmani`).
+Both unified in `src/lib/search.ts`.
 
 ### Key gotchas
 
-- `search_vector` is **not in Drizzle schema** — tsvector column managed via raw SQL only. Don't add it to `schema.ts`.
-- `textSimple` (ayahs) uses `ArabicServices.removeTashkeel` — don't replace with regex.
-- Hadiths have no `textSimple` column — diacritics stripped in SQL via `regexp_replace`.
+- `search_vector` is **not in Drizzle schema** — tsvector column managed via raw SQL only. Don't add it to `schema.ts`. Only needed for hadith search (Quran uses `quran-search-engine`).
+- Quran search text comes from the engine's bundled data, not DB. Font normalization (U+08F0-08F2 → standard diacritics) applied in `quran-search-engine.ts`.
+- Hadiths have `text_simple` column (added by `migrate-search.ts`) — diacritics stripped via `ArabicServices.removeTashkeel` in seed, not regex.
 - DB pool is a `globalThis` singleton (`src/db/index.ts`) — prevents leak on HMR.
 - `strict: false` in tsconfig — `any` is pervasive and intentional.
 - No test suite, no CI workflows.

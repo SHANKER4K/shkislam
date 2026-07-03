@@ -1,4 +1,9 @@
-export const SITE_URL = "https://shkislam.vercel.app";
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : undefined) ||
+  "https://shkislam.vercel.app";
 export const SITE_NAME = "SHK Islam";
 
 export function truncate(str: string, max: number): string {
