@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Tajawal, Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Navbar } from "@/src/components/navbar";
 import { ReadingProgressProvider } from "@/src/lib/reading-progress";
 import { FavoritesProvider } from "@/src/lib/use-favorites";
@@ -89,8 +90,10 @@ export default function RootLayout({
           <ReadingProgressProvider>
             <FavoritesProvider>
               <Navbar />
-              {children}
-              <Toaster position="top-center" dir="rtl" />
+              <TooltipProvider>
+                {children}
+                <Toaster position="top-center" dir="rtl" />
+              </TooltipProvider>
             </FavoritesProvider>
           </ReadingProgressProvider>
         </ThemeProvider>
