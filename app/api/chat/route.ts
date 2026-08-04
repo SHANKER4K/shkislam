@@ -1,8 +1,18 @@
 export async function POST(req: Request) {
-  const { message } = await req.json();
+  const body = await req.json();
 
-  // ponytail: hardcoded stub — swap for real backend when ready
-  const response = `وعليكم السلام ورحمة الله وبركاته. لقد استلمت سؤالك: "${message}". سيتم ربط النظام الحقيقي قريباً.`;
+  // ponytail: relays SSE stream from the inference backend
+  const backend = await fetch("http://localhost:8000/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 
-  return Response.json({ response });
+  return new Response(backend.body, {
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    },
+  });
 }
