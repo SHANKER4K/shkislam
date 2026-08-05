@@ -1,132 +1,267 @@
-import type { Metadata } from "next";
-import { GlobalSearchBar } from "@/src/components/global-search-bar";
-import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, BookMarked, Library } from "lucide-react";
-import { SITE_URL } from "@/src/lib/seo";
+"use client";
 
-export const metadata: Metadata = {
-  title: "SHK Islam - منصة إسلامية للدعاة والخطباء",
-  description:
-    "منصة إسلامية متخصصة لطلاب العلم والدعاة والخطباء. تصفّح القرآن الكريم مع التفسير، والأحاديث النبوية الصحيحة، ومواضيع إسلامية متنوعة.",
-  openGraph: {
-    title: "SHK Islam - منصة إسلامية للدعاة والخطباء",
-    description:
-      "منصة إسلامية متخصصة لطلاب العلم والدعاة والخطباء. تصفّح القرآن الكريم مع التفسير، والأحاديث النبوية الصحيحة.",
-    url: SITE_URL,
-    siteName: "SHK Islam",
-    images: ["/assets/logo.png"],
-    locale: "ar",
-    type: "website",
-  },
-};
+import { Fragment, useState } from "react";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from "@/src/components/ai-elements/conversation";
+import {
+  Message,
+  MessageContent,
+  MessageResponse,
+} from "@/src/components/ai-elements/message";
+import {
+  PromptInput,
+  type PromptInputMessage,
+  PromptInputTextarea,
+  PromptInputSubmit,
+} from "@/src/components/ai-elements/prompt-input";
+import { ChatContainerScrollAnchor } from "@/components/ui/chat-container";
+import { Shimmer } from "@/src/components/ai-elements/shimmer";
+import { Tool } from "@/components/ui/tool";
+import { CopyButton } from "@/src/components/copy-button";
+import Logo from "@/assets/logo.png";
+import Image from "next/image";
+
+type ChatMessage =
+  | {
+      type: "tool";
+      role: "assistant";
+      name: string;
+      callId: string;
+      output?: string;
+      desc?: string;
+    }
+  | { type: "message"; role: "user" | "assistant"; content: string };
+
+const suggestedPrompts = [
+  "ما حكم صيام الست من شوال؟",
+  "آيات عن الصبر",
+  "أحاديث عن بر الوالدين",
+  "ما هي ليلة القدر؟",
+];
 
 export default function HomePage() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading">("idle");
+
+  const handleSubmit = async (message: PromptInputMessage) => {
+    const text = message.text?.trim();
+    if (!text) return;
+
+    setMessages((prev) => [
+      ...prev,
+      { type: "message", role: "user", content: text },
+    ]);
+    setInput("");
+    setStatus("loading");
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, session_id: "1234" }),
+      });
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        const events = buffer.split("\n\n");
+        buffer = events.pop() ?? "";
+
+        for (const raw of events) {
+          const [eventName, data] = parseEvent(raw);
+
+          if (eventName === "tool") {
+            const text = data.text.toLowerCase();
+            const desc =
+              text.includes("quran") || text.includes("aya")
+                ? "Getting data from quran database"
+                : text.includes("hadith")
+                  ? "Getting data from hadith database"
+                  : text.includes("aqeedah")
+                    ? "Getting data from aqeedah books"
+                    : "Getting data from tafsir books";
+            setMessages((prev) => [
+              ...prev,
+              {
+                type: "tool",
+                role: "assistant",
+                name: data.text,
+                callId: data.tool_call_id,
+                desc,
+              },
+            ]);
+          } else if (eventName === "tool_result") {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.type === "tool" && m.callId === data.tool_call_id
+                  ? { ...m, output: data.text }
+                  : m,
+              ),
+            );
+          } else if (eventName === "message_start") {
+            setMessages((prev) => [
+              ...prev,
+              { type: "message", role: "assistant", content: data.text ?? "" },
+            ]);
+          } else if (eventName === "text_delta") {
+            setMessages((prev) => {
+              const last = prev[prev.length - 1];
+              if (!last || last.type !== "message") return prev;
+              return [
+                ...prev.slice(0, -1),
+                { ...last, content: last.content + data.text },
+              ];
+            });
+          }
+          // message_end, done → no-op
+        }
+      }
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: "message",
+          role: "assistant",
+          content: "حدث خطأ في الاتصال. حاول مرة أخرى.",
+        },
+      ]);
+    } finally {
+      setStatus("idle");
+    }
+  };
+
+  function parseEvent(raw: string): [string, any] {
+    let eventName = "";
+    let data = "";
+
+    for (const line of raw.split("\n")) {
+      if (line.startsWith("event:")) {
+        eventName = line.slice(6).trim();
+      }
+
+      if (line.startsWith("data:")) {
+        data += line.slice(5).trim();
+      }
+    }
+
+    const json = data ? JSON.parse(data) : {};
+    return [eventName, json];
+  }
+
   return (
-    <main className="flex-1">
-      {/* Hero */}
-      <section className="container mx-auto px-4 pt-16 pb-12 md:pt-24 md:pb-16">
-        <div className="text-center mb-10">
-          <h1 className="font-arabic text-5xl md:text-6xl font-extrabold tracking-tight mb-3">
-            SHK Islam
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            منصة إسلامية متخصصة لطلاب العلم والدعاة والخطباء
-          </p>
-        </div>
-        <div className="mb-8 md:mb-12">
-          <GlobalSearchBar showTabs />
-        </div>
-      </section>
-
-      {/* Bentō grid — ponytail: CSS grid with varied spans, no JS layout lib */}
-      <section className="container mx-auto px-4 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-          {/* Quran — large card spanning 2 cols */}
-          <Link href="/quran" className="md:col-span-2 group">
-            <Card className="card-hover border-border/60 h-full cursor-pointer overflow-hidden relative">
-              {/* Top accent bar */}
-              <div className="h-1 bg-primary/20" />
-              <CardContent className="p-6 md:p-8">
-                <div className="flex items-start gap-5">
-                  <div className="size-14 rounded-xl bg-primary/5 flex items-center justify-center shrink-0 ring-1 ring-primary/10">
-                    <BookOpen className="size-7 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <h2 className="font-arabic text-2xl font-bold mb-1.5">القرآن الكريم</h2>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      تصفّح 114 سورة مع التفسير الميسر والنص العثماني
-                    </p>
-                    <span className="text-xs font-medium text-primary/70 group-hover:text-primary transition-colors inline-flex items-center gap-1">
-                      تصفّح السور
-                      <span className="text-lg leading-none">←</span>
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Hadith — right side */}
-          <Link href="/hadith" className="group">
-            <Card className="border-border/60 h-full cursor-pointer overflow-hidden">
-              <div className="h-1 bg-secondary/40" />
-              <CardContent className="p-6 md:p-8">
-                <div className="flex flex-col items-start gap-4">
-                  <div className="size-14 rounded-xl bg-secondary/30 flex items-center justify-center shrink-0 ring-1 ring-border">
-                    <BookMarked className="size-7 text-foreground/80" />
-                  </div>
-                  <div>
-                    <h2 className="font-arabic text-xl font-bold mb-1.5">الأحاديث النبوية</h2>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      صحيح البخاري ومسلم
-                    </p>
-                    <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors inline-flex items-center gap-1">
-                      تصفّح الأحاديث
-                      <span className="text-lg leading-none">←</span>
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Themes — full width on mobile, third column on desktop */}
-          <Link href="/themes" className="md:col-start-1 group">
-            <Card className="border-border/60 h-full cursor-pointer overflow-hidden">
-              <div className="h-1 bg-accent/40" />
-              <CardContent className="p-6 md:p-8">
-                <div className="flex flex-col items-start gap-4">
-                  <div className="size-14 rounded-xl bg-accent/30 flex items-center justify-center shrink-0 ring-1 ring-border">
-                    <Library className="size-7 text-foreground/80" />
-                  </div>
-                  <div>
-                    <h2 className="font-arabic text-xl font-bold mb-1.5">المواضيع</h2>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      مواضيع إسلامية متنوعة مع نصوص من القرآن والسنة
-                    </p>
-                    <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors inline-flex items-center gap-1">
-                      استعرض المواضيع
-                      <span className="text-lg leading-none">←</span>
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Quick search hint — right side */}
-          <div className="md:col-span-2 md:col-start-2 group">
-            <Card className="border-dashed border-border/40 bg-muted/30 h-full">
-              <CardContent className="p-6 md:p-8 text-center">
-                <p className="text-sm text-muted-foreground/70 font-arabic">
-                  ابحث في القرآن والأحاديث — تجد الآيات والأحاديث المتعلقة بموضوعك
+    <main className="flex h-svh flex-col">
+      <Conversation className="flex-1">
+        <ConversationContent className="max-w-3xl mx-auto w-full px-4 py-8">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center flex-1 py-24 text-center gap-10">
+              <div className="flex flex-col items-center gap-4">
+                <Image
+                  src={Logo}
+                  alt="SHK Islam"
+                  width={56}
+                  height={56}
+                  className="rounded-md opacity-90"
+                />
+                <h1 className="font-arabic text-3xl font-bold tracking-tight">
+                  كيف يمكنني مساعدتك؟
+                </h1>
+                <p className="text-muted-foreground text-sm max-w-md">
+                  اسأل عن أي آية أو حديث أو مسألة، وسأجيبك مع ذكر المصادر من
+                  القرآن والسنة
                 </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
+                {suggestedPrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => {
+                      setInput(prompt);
+                    }}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors rounded-xl border border-border bg-card/50 px-4 py-3 text-start hover:bg-card"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            messages.map((msg, i) => (
+              <Fragment key={i}>
+                {msg.type === "tool" ? (
+                  <Tool
+                    className="w-full max-w-md text-sm m-0"
+                    toolPart={{
+                      type: msg.name,
+                      state: msg.output
+                        ? "output-available"
+                        : "input-streaming",
+                      input: {
+                        description: msg.desc,
+                      },
+                      output: msg.output ? { text: msg.output } : undefined,
+                    }}
+                  />
+                ) : (
+                  <Message
+                    from={msg.role}
+                    key={i}
+                    className="group/message relative"
+                  >
+                    <MessageContent>
+                      <MessageResponse>{msg.content}</MessageResponse>
+                    </MessageContent>
+                    {msg.role === "assistant" && (
+                      <div className="mt-2 opacity-0 group-hover/message:opacity-100 transition-opacity">
+                        <CopyButton text={msg.content} variant="ghost" size="icon" />
+                      </div>
+                    )}
+                  </Message>
+                )}
+              </Fragment>
+            ))
+          )}
+          {status == "loading" && (
+            <Shimmer duration={3} spread={3}>
+              سوف ادهشك!
+            </Shimmer>
+          )}
+        </ConversationContent>
+        <ChatContainerScrollAnchor />
+        <ConversationScrollButton />
+      </Conversation>
+
+      <div className="max-w-3xl mx-auto w-full px-4 pb-4 pt-2">
+        <PromptInput onSubmit={handleSubmit} className="relative w-full">
+          <PromptInputTextarea
+            value={input}
+            placeholder="اكتب سؤالك هنا..."
+            onChange={(e) => setInput(e.currentTarget.value)}
+            className="pr-12 rounded-2xl border bg-card shadow-none"
+          />
+          <PromptInputSubmit
+            status={status === "loading" ? "submitted" : "ready"}
+            disabled={!input.trim() || status === "loading"}
+            className="absolute bottom-1 right-1"
+          />
+        </PromptInput>
+        <p className="mt-2 text-center text-xs text-muted-foreground/70">
+          قد يخطئ الذكاء الاصطناعي، تحقق من المصادر
+        </p>
+      </div>
     </main>
   );
 }

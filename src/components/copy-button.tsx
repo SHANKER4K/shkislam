@@ -45,20 +45,18 @@ export function CopyButton({
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger
-        render={
-          <Button className={`${className} relative`} variant={variant} size={size}>
-            {copied ? (
-              <Check className="size-4" />
-            ) : (
-              <>
-                <ChevronDown className="size-3 mr-1" />
-                <Copy className="size-4" />
-              </>
-            )}
-          </Button>
-        }
-      />
+      <DropdownMenuTrigger asChild>
+        <Button className={`${className} relative`} variant={variant} size={size}>
+          {copied ? (
+            <Check className="size-4" />
+          ) : (
+            <>
+              <ChevronDown className="size-3 mr-1" />
+              <Copy className="size-4" />
+            </>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem
           onClick={() => handleCopy(citationText || text, "بالتشكيل")}

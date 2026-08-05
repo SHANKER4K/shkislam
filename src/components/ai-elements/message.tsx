@@ -371,7 +371,7 @@ const Callout = ({ type, title, children }: any) => {
     <div className={`callout callout-${type}`}>
       <div className="flex flex-row justify-between">
         <div className="callout-title">{title}</div>
-        <Button variant="inline" onClick={handleCopy}>
+        <Button variant="ghost" size="icon-xs" onClick={handleCopy}>
           {isCopied ? <Check /> : <Copy />}
         </Button>
       </div>

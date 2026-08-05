@@ -4,7 +4,8 @@ import { Tajawal, Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Navbar } from "@/src/components/navbar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/src/components/app-sidebar";
 import { ReadingProgressProvider } from "@/src/lib/reading-progress";
 import { FavoritesProvider } from "@/src/lib/use-favorites";
 import "./globals.css";
@@ -89,11 +90,13 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <ReadingProgressProvider>
             <FavoritesProvider>
-              <Navbar />
-              <TooltipProvider>
-                {children}
+              <SidebarProvider>
+                <TooltipProvider>
+                  <AppSidebar />
+                  <SidebarInset>{children}</SidebarInset>
+                </TooltipProvider>
                 <Toaster position="top-center" dir="rtl" />
-              </TooltipProvider>
+              </SidebarProvider>
             </FavoritesProvider>
           </ReadingProgressProvider>
         </ThemeProvider>

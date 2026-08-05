@@ -82,7 +82,9 @@ export function ExportModal({ text, source, type, children }: ExportModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={(v) => (v ? setOpen(true) : handleClose())}>
-      <DialogTrigger render={<span />}>{children}</DialogTrigger>
+      <DialogTrigger asChild>
+        <span>{children}</span>
+      </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>تصدير كصورة</DialogTitle>

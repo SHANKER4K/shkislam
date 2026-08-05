@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="Tajawal, Noto Sans Arabic, sans-serif">
+  <defs>
+    <linearGradient id="forest" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#18301F"/>
+      <stop offset="1" stop-color="#14271C"/>
+    </linearGradient>
+    <linearGradient id="silk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1E3A25"/>
+      <stop offset="1" stop-color="#1B3323"/>
+    </linearGradient>
+    <linearGradient id="amberglow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E0A33C"/>
+      <stop offset="1" stop-color="#C98A2D"/>
+    </linearGradient>
+    <radialGradient id="lamp" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#E0A33C" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#E0A33C" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- forest floor -->
+  <rect width="1600" height="900" fill="url(#forest)"/>
+
+  <!-- ambient lamp glow, top center -->
+  <rect width="1600" height="900" fill="url(#lamp)"/>
+
+  <!-- RTL: sidebar on the RIGHT -->
+  <rect x="1280" y="0" width="320" height="900" fill="url(#silk)"/>
+  <line x1="1280" y1="0" x2="1280" y2="900" stroke="#29442F" stroke-width="1"/>
+
+  <!-- wordmark -->
+  <circle cx="1312" cy="48" r="12" fill="url(#amberglow)"/>
+  <text x="1334" y="54" font-size="20" font-weight="800" fill="#EBE7D8">SHK Islam</text>
+
+  <!-- new chat plate -->
+  <rect x="1304" y="76" width="272" height="40" rx="12" fill="none" stroke="#29442F" stroke-width="1"/>
+  <text x="1320" y="101" font-size="14" font-weight="500" fill="#9DB3A0">+  محادثة جديدة</text>
+
+  <!-- hairline -->
+  <line x1="1304" y1="140" x2="1576" y2="140" stroke="#29442F" stroke-width="1"/>
+
+  <!-- nav: active with amber lamp marker -->
+  <rect x="1304" y="162" width="272" height="40" rx="12" fill="#22402A"/>
+  <rect x="1304" y="172" width="3" height="20" fill="#E0A33C"/>
+  <text x="1332" y="187" font-size="15" font-weight="700" fill="#EBE7D8">القرآن الكريم</text>
+
+  <rect x="1304" y="208" width="272" height="40" rx="12" fill="none"/>
+  <text x="1332" y="233" font-size="15" font-weight="500" fill="#9DB3A0">الأحاديث النبوية</text>
+
+  <rect x="1304" y="254" width="272" height="40" rx="12" fill="none"/>
+  <text x="1332" y="279" font-size="15" font-weight="500" fill="#9DB3A0">المواضيع</text>
+
+  <rect x="1304" y="300" width="272" height="40" rx="12" fill="none"/>
+  <text x="1332" y="325" font-size="15" font-weight="500" fill="#9DB3A0">المفضلة</text>
+
+  <rect x="1304" y="346" width="272" height="40" rx="12" fill="none"/>
+  <text x="1332" y="371" font-size="15" font-weight="500" fill="#9DB3A0">البحث</text>
+
+  <line x1="1304" y1="410" x2="1576" y2="410" stroke="#29442F" stroke-width="1"/>
+
+  <rect x="1304" y="426" width="272" height="40" rx="12" fill="none"/>
+  <text x="1332" y="451" font-size="14" font-weight="500" fill="#9DB3A0">عن المنصة</text>
+
+  <!-- sidebar footer: theme toggle -->
+  <rect x="1304" y="830" width="40" height="40" rx="12" fill="none" stroke="#29442F" stroke-width="1"/>
+  <circle cx="1324" cy="850" r="8" fill="none" stroke="#E0A33C" stroke-width="1.5"/>
+
+  <!-- conversation column -->
+  <!-- user message -->
+  <rect x="908" y="90" width="336" height="64" rx="16" fill="#22402A"/>
+  <text x="930" y="130" font-size="17" font-weight="500" fill="#EBE7D8">ما هي الآية التي تتحدث عن الصبر؟</text>
+
+  <!-- assistant tool callout: carved artifact -->
+  <rect x="120" y="200" width="752" height="196" rx="16" fill="#1B3323" stroke="#29442F" stroke-width="1"/>
+  <rect x="120" y="200" width="752" height="3" fill="#E0A33C"/>
+  <text x="144" y="236" font-size="12" font-weight="500" fill="#9DB3A0">القرآن الكريم · أداة البحث</text>
+  <rect x="144" y="256" width="704" height="92" rx="12" fill="#14271C"/>
+  <text x="168" y="302" font-size="22" font-weight="700" fill="#EBE7D8" font-family="KFGQPC Uthmanic HAFS, Traditional Arabic, serif">وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ</text>
+  <text x="168" y="334" font-size="13" font-weight="600" fill="#E0A33C">البقرة ٢:٤٥</text>
+
+  <!-- assistant prose -->
+  <text x="144" y="440" font-size="17" font-weight="400" fill="#EBE7D8">أمر الله تعالى بالاستعانة بالصبر والصلاة، وهما</text>
+  <text x="144" y="470" font-size="17" font-weight="400" fill="#EBE7D8">عونان عظيمان على قضاء الحوائج وتحصيل الأجر.</text>
+
+  <!-- second callout -->
+  <rect x="120" y="516" width="752" height="120" rx="16" fill="#1B3323" stroke="#29442F" stroke-width="1"/>
+  <rect x="120" y="516" width="752" height="3" fill="#E0A33C"/>
+  <text x="144" y="552" font-size="12" font-weight="500" fill="#9DB3A0">صحيح البخاري · أداة البحث</text>
+  <text x="168" y="592" font-size="17" font-weight="700" fill="#EBE7D8" font-family="KFGQPC Uthmanic HAFS, Traditional Arabic, serif">عَجَبًا لِأَمْرِ الْمُؤْمِنِ، إِنَّ أَمْرَهُ كُلَّهُ خَيْرٌ</text>
+  <text x="168" y="620" font-size="13" font-weight="600" fill="#E0A33C">رواه مسلم ٢٩٩٩</text>
+
+  <!-- input dock -->
+  <rect x="120" y="716" width="880" height="72" rx="16" fill="url(#silk)" stroke="#29442F" stroke-width="1"/>
+  <text x="144" y="758" font-size="16" font-weight="400" fill="#9DB3A0">اكتب سؤالك هنا...</text>
+  <rect x="920" y="732" width="56" height="40" rx="12" fill="url(#amberglow)"/>
+  <path d="M946 744 L934 756 M946 744 L934 732" stroke="#14271C" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- subtle top border -->
+  <line x1="0" y1="0" x2="1600" y2="0" stroke="#22402A" stroke-width="1"/>
+</svg>
