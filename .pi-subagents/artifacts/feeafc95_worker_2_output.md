@@ -1,1 +1,0 @@
-The spec is complete; the hero image is the single open item (no image-gen tool in this session's allowlist). Final, clean acceptance report:

@@ -47,4 +47,5 @@ next-env.d.ts
 *.db
 *.sql
 
-drizzle/
+drizzle/.pi-subagents/
+design-concepts/
