@@ -49,3 +49,4 @@ next-env.d.ts
 
 drizzle/.pi-subagents/
 design-concepts/
+.worktrees/
