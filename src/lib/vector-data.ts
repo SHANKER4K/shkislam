@@ -446,6 +446,7 @@ export const DISPLAY_FIELDS: Record<Collection, { key: string; label: string }[]
     { key: "category_name", label: "التصنيف" },
     { key: "all_authors", label: "المؤلف" },
     { key: "page", label: "الصفحة" },
+    { key: "source", label: "المصدر" },
   ],
 };
 
