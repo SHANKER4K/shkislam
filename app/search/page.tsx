@@ -1,32 +1,17 @@
 import type { Metadata } from "next";
-import { GlobalSearchBar } from "@/src/components/global-search-bar";
-import { SearchResults } from "./search-results";
+import { VectorSearchTool } from "./vector-search";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-interface SearchPageProps {
-  searchParams: Promise<{ q?: string; type?: string }>;
-}
-
-export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { q, type } = await searchParams;
-
+export default function SearchPage() {
   return (
     <main className="flex-1 container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <GlobalSearchBar initialQuery={q || ""} initialType={type || "all"} />
+      <div className="mx-auto max-w-4xl">
+        <h1 className="mb-6 text-2xl font-bold">البحث المتجه</h1>
+        <VectorSearchTool />
       </div>
-
-      {q && (
-        <div className="max-w-3xl mx-auto">
-          <h2 className="font-arabic text-xl font-semibold mb-4">
-            نتائج البحث عن: {q}
-          </h2>
-          <SearchResults query={q} initialType={type || "all"} />
-        </div>
-      )}
     </main>
   );
 }
