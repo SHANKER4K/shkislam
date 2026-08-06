@@ -127,7 +127,8 @@ export function getSuggestions(collection: Collection, key: string): string[] {
   return SUGGESTIONS[collection]?.[key] ?? [];
 }
 
-// Payload fields worth showing per collection, in display order.
+// Metadata payload fields worth showing as badges per collection, in display order.
+// (The searchable text itself lives in payload["text"] and is shown separately.)
 export const DISPLAY_FIELDS: Record<Collection, { key: string; label: string }[]> = {
   quran: [
     { key: "surah", label: "السورة" },
@@ -508,6 +509,13 @@ function formatValue(v: unknown): string {
   return String(v)
 }
 
+// Metadata fields that exist in the payload, as {key, label, value} rows.
+function metadataRows(collection: Collection, payload: Record<string, unknown>) {
+  return DISPLAY_FIELDS[collection]
+    .filter((f) => payload[f.key] !== undefined && payload[f.key] !== null)
+    .map((f) => ({ ...f, value: formatValue(payload[f.key]) }))
+}
+
 export function VectorResults({
   collection,
   results,
@@ -556,8 +564,6 @@ export function VectorResults({
     )
   }
 
-  const fields = DISPLAY_FIELDS[collection]
-
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -571,9 +577,8 @@ export function VectorResults({
       </div>
       {results.map((hit, i) => {
         const payload = (hit.payload ?? {}) as Record<string, unknown>
-        const shown = fields.filter(
-          (f) => payload[f.key] !== undefined && payload[f.key] !== null
-        )
+        const meta = metadataRows(collection, payload)
+        const text = payload.text
         return (
           <Card key={i} className="transition-shadow hover:shadow-md">
             <CardContent className="p-4">
@@ -586,18 +591,27 @@ export function VectorResults({
                     : formatValue(hit.score)}
                 </span>
               </div>
-              {shown.length > 0 ? (
-                <dl className="space-y-1 text-sm">
-                  {shown.map((f) => (
-                    <div key={f.key} className="flex gap-2">
-                      <dt className="shrink-0 text-muted-foreground">{f.label}:</dt>
-                      <dd className="font-arabic">{formatValue(payload[f.key])}</dd>
-                    </div>
-                  ))}
-                </dl>
+
+              {/* The searched text */}
+              {text !== undefined && text !== null && text !== "" ? (
+                <p dir="rtl" className="font-arabic text-sm leading-relaxed">
+                  {formatValue(text)}
+                </p>
               ) : (
-                <p className="text-sm text-muted-foreground">لا توجد حقول معروفة</p>
+                <p className="text-sm text-muted-foreground">لا يوجد نص</p>
               )}
+
+              {/* Metadata as badges */}
+              {meta.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {meta.map((m) => (
+                    <Badge key={m.key} variant="outline">
+                      {m.label}: {m.value}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
               <Collapsible className="mt-3">
                 <CollapsibleTrigger asChild>
                   <Button

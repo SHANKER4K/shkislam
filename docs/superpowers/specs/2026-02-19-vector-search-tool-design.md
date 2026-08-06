@@ -11,7 +11,7 @@
 - Collection selection (ComboBox) from 5 collections: `quran`, `hadith`, `tafsir`, `books`, `sunnah`.
 - Per-collection filter fields derived from `FILTER_SCHEMA` (hardcoded). int keys → number input; book/category keys → ComboBox with suggestion lists; other str keys → free-text input. Multiple filters AND-combined.
 - Method args: `top_k` (all methods, default 10); `pool` (hybrid only, default 50).
-- Results: each card shows **score** + useful payload fields + a raw-payload toggle. Loading skeleton, empty state, error + retry.
+- Results: each card shows the searched **text** (`payload["text"]`) prominently, metadata fields as **Badges**, the **score**, and a raw-payload toggle. Loading skeleton, empty state, error + retry.
 - Delete `GlobalSearchBar` and old `SearchResults` (only used by the old page).
 
 ## FILTER_SCHEMA (hardcoded)
@@ -26,7 +26,7 @@ sunnah -> book_id (int), book_name (str), category_name (str), all_authors (str)
 
 ## Result card payload fields (best-effort per collection)
 
-Show any that exist in the payload; fall back to raw payload JSON so nothing is hidden:
+`payload["text"]` is the searched text — rendered as the card body. The other fields below are metadata — rendered as Badges. Show any that exist; raw-payload toggle so nothing is hidden:
 - quran: surah, ayah_number
 - hadith: book, hadith_number, grade
 - tafsir: book (tafsir_book), surah, ayah_number, source
