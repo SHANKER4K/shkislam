@@ -399,7 +399,13 @@ export const MessageResponse = memo(
         strong: ({ children }) => (
           <strong className="text-primary font-extrabold">{children}</strong>
         ),
-
+        blockquote: ({ children }) => (
+          <div className="text-lime-200">
+            <div className="rounded-sm border-r-2 border-primary pr-4 text-start">
+              {children}
+            </div>
+          </div>
+        ),
         ...externalComponents,
       }}
       {...props}

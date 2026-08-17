@@ -15,29 +15,34 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ error: "invalid JSON body" }, { status: 400 });
   }
-  const { method, collection, query_text, top_k, pool, filters } =
-    (body ?? {}) as Record<string, unknown>;
+  const { method, collection, query_text, top_k, pool, filters } = (body ??
+    {}) as Record<string, unknown>;
 
   if (!METHODS.includes(method as Method)) {
     return NextResponse.json(
       { error: "method must be dense|sparse|hybrid" },
-      { status: 400 }
+      { status: 400 },
     );
   }
   if (!COLLECTIONS.includes(collection as Collection)) {
     return NextResponse.json(
       { error: `collection must be one of ${COLLECTIONS.join(", ")}` },
-      { status: 400 }
+      { status: 400 },
     );
   }
   if (typeof query_text !== "string" || !query_text.trim()) {
-    return NextResponse.json({ error: "query_text is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "query_text is required" },
+      { status: 400 },
+    );
   }
 
   const topK = Math.min(100, Math.max(1, Number(top_k) || 10));
   const pool_ = Math.min(500, Math.max(1, Number(pool) || 50));
   const filters_ =
-    filters && typeof filters === "object" && !Array.isArray(filters) ? filters : {};
+    filters && typeof filters === "object" && !Array.isArray(filters)
+      ? filters
+      : {};
 
   const url = buildSearchUrl(method as Method, {
     collection: collection as Collection,
@@ -48,12 +53,17 @@ export async function POST(request: NextRequest) {
   });
 
   try {
-    const res = await fetch(url, { method: "POST", cache: "no-store" });
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(filters_),
+      cache: "no-store",
+    });
     if (!res.ok) {
       const text = await res.text();
       return NextResponse.json(
         { error: `FastAPI ${res.status}: ${text.slice(0, 500)}` },
-        { status: 502 }
+        { status: 502 },
       );
     }
     const data = await res.json();
@@ -69,7 +79,7 @@ export async function POST(request: NextRequest) {
     const msg = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
       { error: `cannot reach localhost:8000: ${msg}` },
-      { status: 502 }
+      { status: 502 },
     );
   }
 }

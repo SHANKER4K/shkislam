@@ -1,39 +1,77 @@
 // Hardcoded from the FastAPI server (server.py). Single source of truth for
 // filter schema, combobox suggestions, and result display fields.
 
-export const COLLECTIONS = ["quran", "hadith", "tafsir", "books", "sunnah"] as const;
+export const COLLECTIONS = [
+  "quran",
+  "hadith",
+  "tafsir",
+  "books",
+  "sunnah",
+] as const;
 export type Collection = (typeof COLLECTIONS)[number];
 
 // Allowed filter keys per collection with value type.
 // "int" keys accept numbers, "str" keys accept strings. Multiple keys AND-combined.
-export const FILTER_SCHEMA: Record<Collection, Record<string, "int" | "str">> = {
+export const FILTER_SCHEMA: Record<
+  Collection,
+  Record<string, "int" | "str">
+> = {
   quran: { surah_number: "int", surah: "str" },
   hadith: { book: "str", grade: "str" },
   tafsir: { surah_number: "int", surah: "str", ayah_number: "int" },
   books: {
-    book_id: "int", book_name: "str", category_name: "str", all_authors: "str",
-    author_death: "int", book_date: "int",
+    book_id: "int",
+    book_name: "str",
+    category_name: "str",
+    all_authors: "str",
+    author_death: "int",
+    book_date: "int",
   },
   sunnah: {
-    book_id: "int", book_name: "str", category_name: "str", all_authors: "str",
-    author_death: "int", book_date: "int", athar_number: "int",
+    book_id: "int",
+    book_name: "str",
+    category_name: "str",
+    all_authors: "str",
+    author_death: "int",
+    book_date: "int",
+    athar_number: "int",
   },
 };
 
 export const HADITH_BOOKS = [
-  "abudawud", "bukhari", "dehlawi", "ibnmajah", "malik",
-  "nasai", "nawawi", "qudsi", "tirmidhi",
+  "abudawud",
+  "bukhari",
+  "dehlawi",
+  "ibnmajah",
+  "malik",
+  "nasai",
+  "nawawi",
+  "qudsi",
+  "tirmidhi",
 ];
 
-export const TAFSIR_BOOKS = ["saadi", "katheer", "moyassar", "tabary", "baghawy"];
+export const TAFSIR_BOOKS = [
+  "saadi",
+  "katheer",
+  "moyassar",
+  "tabary",
+  "baghawy",
+];
 
 export const CATEGORIES_NAMES = [
-  "العقيدة", "كتب السنة", "العلل والسؤلات الحديثية", "التراجم والطبقات",
-  "الفقه الحنبلي", "الرقائق والآداب والأذكار", "علوم الحديث", "شروح الحديث",
+  "العقيدة",
+  "كتب السنة",
+  "العلل والسؤلات الحديثية",
+  "التراجم والطبقات",
+  "الفقه الحنبلي",
+  "الرقائق والآداب والأذكار",
+  "علوم الحديث",
+  "شروح الحديث",
 ];
 
 // Copy VERBATIM from server.py (user-provided): all ~260 Arabic titles.
-export const BOOKS_LIST: string[] = ["إجماع السلف في الاعتقاد كما حكاه حرب الكرماني",
+export const BOOKS_LIST: string[] = [
+  "إجماع السلف في الاعتقاد كما حكاه حرب الكرماني",
   "الجواب الصحيح لمن بدل دين المسيح لابن تيمية",
   "اتباع السنن واجتناب البدع",
   "الصواعق المرسلة على الجهمية والمعطلة - ط عطاءات العلم",
@@ -292,10 +330,12 @@ export const BOOKS_LIST: string[] = ["إجماع السلف في الاعتقا�
   "سنن أبي داود - ت الأرنؤوط",
   "مسألة في توحيد الفلاسفة",
   "مقدمة تشتمل على أن جميع الرسل كان دينهم الإسلام",
-  "كلمة الإخلاص وتحقيق معناها - ضمن رسائل ابن رجب",];
+  "كلمة الإخلاص وتحقيق معناها - ضمن رسائل ابن رجب",
+];
 
 // Copy VERBATIM from server.py (user-provided): all ~130 Arabic titles.
-export const SUNNAH_BOOKS: string[] = ["السنة لعبد الله بن أحمد",
+export const SUNNAH_BOOKS: string[] = [
+  "السنة لعبد الله بن أحمد",
   "الحث على التجارة - من «الجامع» للخلال - ت العوضي",
   "السنة لأبي بكر بن الخلال",
   "بر الوالدين - البخاري - ت مكي",
@@ -404,7 +444,8 @@ export const SUNNAH_BOOKS: string[] = ["السنة لعبد الله بن أحم
   "مسند الدارمي - ت الزهراني",
   "مسند أحمد - ت شاكر - ط دار الحديث",
   "كتاب العلل الواقع بآخر جامع الترمذي - ت بشار",
-  "القراءة عند القبور - من «الجامع» للخلال",];
+  "القراءة عند القبور - من «الجامع» للخلال",
+];
 
 // Combobox suggestion options per (collection, filter key).
 const SUGGESTIONS: Partial<Record<Collection, Record<string, string[]>>> = {
@@ -419,7 +460,10 @@ export function getSuggestions(collection: Collection, key: string): string[] {
 
 // Metadata payload fields worth showing as badges per collection, in display order.
 // (The searchable text itself lives in payload["text"] and is shown separately.)
-export const DISPLAY_FIELDS: Record<Collection, { key: string; label: string }[]> = {
+export const DISPLAY_FIELDS: Record<
+  Collection,
+  { key: string; label: string }[]
+> = {
   quran: [
     { key: "surah", label: "السورة" },
     { key: "ayah_number", label: "رقم الآية" },
@@ -453,7 +497,7 @@ export const DISPLAY_FIELDS: Record<Collection, { key: string; label: string }[]
 // Drop unknown/empty filter values; coerce int keys to numbers.
 export function buildFiltersPayload(
   collection: Collection,
-  raw: Record<string, string>
+  raw: Record<string, string>,
 ): Record<string, string | number> {
   const schema = FILTER_SCHEMA[collection];
   const out: Record<string, string | number> = {};
@@ -473,15 +517,15 @@ export function buildSearchUrl(
     top_k: number;
     pool: number;
     filters: Record<string, unknown>;
-  }
+  },
 ): string {
-  const url = new URL(`http://localhost:8000/${method}_search`);
+  const url = new URL(`http://localhost:8000/chat/${method}_search`);
   url.searchParams.set("collection", params.collection);
   url.searchParams.set("query_text", params.query_text);
   url.searchParams.set("top_k", String(params.top_k));
   if (method === "hybrid") url.searchParams.set("pool", String(params.pool));
-  if (Object.keys(params.filters).length > 0) {
-    url.searchParams.set("filters", JSON.stringify(params.filters));
-  }
+  // if (Object.keys(params.filters).length > 0) {
+  // url.searchParams.set("filters", JSON.stringify(params.filters));
+  // }
   return url.toString();
 }

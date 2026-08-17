@@ -11,7 +11,7 @@ import { FavoritesProvider } from "@/src/lib/use-favorites";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const tajawal = Tajawal({
   variable: "--font-tajawal",
@@ -37,7 +37,55 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  keywords: ['Islamic platform', 'Da\'iyahs', 'Khateebs', 'Islamic knowledge', 'Arabic content','shkislam','SHK Islam','ismail projects','shkislam.vercel.app', 'shkislam.com','shkislam.net','shkislam.org','shkislam.io','shkislam.co','shkislam.dev','shkislam.app','shkislam.online','shkislam.site','shkislam.tech','shk projects','shk islam','shk islamic platform','shk islamic web platform','shk islamic website','shk islamic online platform','shk islamic online website','shk islamic online service','shk islamic online application','shk islamic online app','shk islamic online tool','shk islamic online resource','hadiths','quran','islamic teachings','islamic education','islamic learning','islamic resources','islamic articles','islamic videos','islamic lectures','islamic sermons','islamic khutbahs','islamic dawah','islamic preaching','islamic speaking','islamic communication','islamic outreach'],
+  keywords: [
+    "Islamic platform",
+    "Da'iyahs",
+    "Khateebs",
+    "Islamic knowledge",
+    "Arabic content",
+    "shkislam",
+    "SHK Islam",
+    "ismail projects",
+    "shkislam.vercel.app",
+    "shkislam.com",
+    "shkislam.net",
+    "shkislam.org",
+    "shkislam.io",
+    "shkislam.co",
+    "shkislam.dev",
+    "shkislam.app",
+    "shkislam.online",
+    "shkislam.site",
+    "shkislam.tech",
+    "shk projects",
+    "shk islam",
+    "shk islamic platform",
+    "shk islamic web platform",
+    "shk islamic website",
+    "shk islamic online platform",
+    "shk islamic online website",
+    "shk islamic online service",
+    "shk islamic online application",
+    "shk islamic online app",
+    "shk islamic online tool",
+    "shk islamic online resource",
+    "hadiths",
+    "quran",
+    "islamic teachings",
+    "islamic education",
+    "islamic learning",
+    "islamic resources",
+    "islamic articles",
+    "islamic videos",
+    "islamic lectures",
+    "islamic sermons",
+    "islamic khutbahs",
+    "islamic dawah",
+    "islamic preaching",
+    "islamic speaking",
+    "islamic communication",
+    "islamic outreach",
+  ],
   icons: {
     icon: [
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
@@ -45,8 +93,16 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-touch-icon.png",
     other: [
-      { url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+      {
+        url: "/android-chrome-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        url: "/android-chrome-512x512.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
     ],
   },
   verification: {
@@ -70,7 +126,14 @@ export default function RootLayout({
       lang="ar"
       dir="rtl"
       suppressHydrationWarning
-      className={cn("h-full", "antialiased", tajawal.variable, uthmanic.variable, "font-sans", inter.variable)}
+      className={cn(
+        "h-full",
+        "antialiased",
+        tajawal.variable,
+        uthmanic.variable,
+        "font-sans",
+        inter.variable,
+      )}
     >
       <body className="min-h-full flex flex-col">
         <script

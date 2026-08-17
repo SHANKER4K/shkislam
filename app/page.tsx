@@ -62,7 +62,15 @@ export default function HomePage() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, session_id: "1234" }),
+        body: JSON.stringify({
+          message: text,
+          session_id: "1234",
+          api_key: "dahl_4VmEw6mgJLiWyB9Co6ATkXUUWKgxc51Bx",
+          model_provider: "dahl",
+          model_name: "moonshotai/Kimi-K2.6",
+          model_variant: "low",
+          web: true,
+        }),
       });
 
       const reader = res.body.getReader();
@@ -114,7 +122,11 @@ export default function HomePage() {
           } else if (eventName === "message_start") {
             setMessages((prev) => [
               ...prev,
-              { type: "message", role: "assistant", content: data.text ?? "" },
+              {
+                type: "message",
+                role: "assistant",
+                content: data.text ?? "",
+              },
             ]);
           } else if (eventName === "text_delta") {
             setMessages((prev) => {
@@ -226,7 +238,13 @@ export default function HomePage() {
                     </MessageContent>
                     {msg.role === "assistant" && (
                       <div className="mt-2 opacity-0 group-hover/message:opacity-100 transition-opacity">
-                        <CopyButton text={msg.content} variant="ghost" size="icon" />
+                        <div className="absolute left-0">
+                          <CopyButton
+                            text={msg.content.trim()}
+                            variant="ghost"
+                            size="icon"
+                          />
+                        </div>
                       </div>
                     )}
                   </Message>
