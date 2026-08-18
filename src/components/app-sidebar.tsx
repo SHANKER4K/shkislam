@@ -29,6 +29,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import Logo from "@/assets/logo.png";
+import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/quran", label: "القرآن الكريم", icon: BookOpen },
@@ -67,9 +68,13 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <Button asChild variant="outline" className="mt-3 w-full justify-start gap-2 text-sm">
+        <Button
+          asChild
+          variant="outline"
+          className="mt-3 w-full justify-start gap-2 text-sm border-primary/40 text-primary hover:bg-primary/10 hover:text-primary transition-colors duration-150"
+        >
           <Link href="/">
-            <MessageSquare className="size-4" />
+            <MessageSquare className="size-4 stroke-[1.5]" />
             <span className="truncate">محادثة جديدة</span>
           </Link>
         </Button>
@@ -87,10 +92,13 @@ export function AppSidebar() {
                       asChild
                       isActive={active}
                       tooltip={item.label}
-                      className="text-sm"
+                      className={cn(
+                        "text-sm transition-colors duration-150",
+                        active && "border-r-2 border-sidebar-primary text-sidebar-primary bg-sidebar-accent"
+                      )}
                     >
                       <Link href={item.href}>
-                        <item.icon className="size-4" />
+                        <item.icon className="size-4 stroke-[1.5]" />
                         <span>{item.label}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -110,7 +118,11 @@ export function AppSidebar() {
               tooltip={theme === "dark" ? "الوضع النهاري" : "الوضع الليلي"}
               className="text-sm"
             >
-              {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+              {theme === "dark" ? (
+                <Sun className="size-4 stroke-[1.5]" />
+              ) : (
+                <Moon className="size-4 stroke-[1.5]" />
+              )}
               <span>{theme === "dark" ? "الوضع النهاري" : "الوضع الليلي"}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>

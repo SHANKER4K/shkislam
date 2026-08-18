@@ -1,11 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, Trash2, BookOpen, MessageCircle } from "lucide-react";
-import { useFavorites, type FavoriteItem, type FavoriteAyah, type FavoriteHadith } from "@/src/lib/use-favorites";
+import { useFavorites, type FavoriteAyah, type FavoriteHadith } from "@/src/lib/use-favorites";
 
 type GroupedAyahs = Record<string, { surahNumber: number; items: FavoriteAyah[] }>;
 type GroupedHadiths = Record<string, { bookSlug: string; chapters: Record<string, FavoriteHadith[]> }>;
@@ -44,27 +42,27 @@ export default function FavoritesPage() {
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="flex items-center gap-3 mb-8">
-          <Heart className="size-6 text-red-500 fill-red-500" />
-          <h1 className="text-2xl font-bold">المفضلة</h1>
-          <span className="text-sm text-muted-foreground">
-            ({favorites.length})
+          <Heart className="size-6 text-primary fill-primary" />
+          <h1 className="font-arabic text-3xl font-bold">المفضلة</h1>
+          <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
+            {favorites.length}
           </span>
         </div>
 
         {favorites.length === 0 && (
-          <div className="text-center py-20 text-muted-foreground">
-            <Heart className="size-12 mx-auto mb-4 text-muted-foreground/40" />
-            <p className="text-lg">لم تضف أي عنصر إلى المفضلة بعد</p>
+          <div className="text-center py-24 text-muted-foreground">
+            <Heart className="size-16 mx-auto mb-4 text-muted-foreground/20" />
+            <h3 className="font-arabic text-xl font-bold mb-2">لم تضف أي شيء بعد</h3>
             <p className="text-sm mt-1">اضغط على أيقونة القلب بجانب أي آية أو حديث لإضافته</p>
-            <div className="flex justify-center gap-4 mt-6">
+            <div className="flex justify-center gap-3 mt-6">
               <Link href="/quran">
-                <Button variant="outline" size="sm">
-                  <BookOpen className="size-4 ml-1" /> تصفح القرآن
+                <Button className="rounded-lg bg-primary text-primary-foreground hover:brightness-110 active:scale-[0.98] transition-all duration-150" size="sm">
+                  <BookOpen className="size-4 ml-1 stroke-[1.5]" /> تصفح القرآن
                 </Button>
               </Link>
               <Link href="/hadith">
-                <Button variant="outline" size="sm">
-                  <MessageCircle className="size-4 ml-1" /> تصفح الأحاديث
+                <Button variant="outline" className="rounded-lg border border-input hover:bg-secondary transition-colors duration-150" size="sm">
+                  <MessageCircle className="size-4 ml-1 stroke-[1.5]" /> تصفح الأحاديث
                 </Button>
               </Link>
             </div>
@@ -79,35 +77,35 @@ export default function FavoritesPage() {
             </h2>
             {Object.entries(ayahGroups).map(([surahName, group]) => (
               <div key={surahName} className="mb-6">
-                <Link href={`/quran/${group.surahNumber}`}>
-                  <h3 className="font-arabic text-lg font-semibold mb-3 text-primary hover:underline">
-                    {surahName}
-                  </h3>
-                </Link>
+                <div className="sticky top-0 bg-background py-2 z-10 border-b border-border mb-3">
+                  <Link href={`/quran/${group.surahNumber}`}>
+                    <h3 className="font-arabic text-lg font-semibold text-primary hover:underline">
+                      {surahName}
+                    </h3>
+                  </Link>
+                </div>
                 <div className="space-y-2">
                   {group.items.map((item) => (
-                    <Card key={item.id} className="border shadow-sm">
-                      <CardContent className="p-3 flex items-start gap-3">
-                        <Link
-                          href={`/quran/${item.surahNumber}/${item.verseNumber}`}
-                          className="flex-1 min-w-0"
-                        >
-                          <div className="font-quran leading-loose text-foreground text-lg">
-                            {item.textUthmani}
-                            <span className="inline-flex items-center justify-center size-6 rounded-full bg-primary/10 text-primary text-xs font-arabic font-semibold mx-1 align-middle">
-                              {item.verseNumber}
-                            </span>
-                          </div>
-                        </Link>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFavorite(item.id)}
-                        >
-                          <Trash2 className="size-4 text-muted-foreground hover:text-red-500" />
-                        </Button>
-                      </CardContent>
-                    </Card>
+                    <div key={item.id} className="bg-card rounded-lg p-4 flex items-start gap-3">
+                      <Link
+                        href={`/quran/${item.surahNumber}/${item.verseNumber}`}
+                        className="flex-1 min-w-0"
+                      >
+                        <div className="font-quran leading-loose text-foreground text-lg">
+                          {item.textUthmani}
+                          <span className="inline-flex items-center justify-center size-6 rounded-full bg-muted text-foreground text-xs font-arabic font-semibold mx-1 align-middle">
+                            {item.verseNumber}
+                          </span>
+                        </div>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFavorite(item.id)}
+                      >
+                        <Trash2 className="size-4 text-muted-foreground hover:text-red-500" />
+                      </Button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -123,11 +121,13 @@ export default function FavoritesPage() {
             </h2>
             {Object.entries(hadithGroups).map(([bookName, group]) => (
               <div key={bookName} className="mb-6">
-                <Link href={`/hadith/${group.bookSlug}`}>
-                  <h3 className="font-arabic text-lg font-semibold mb-3 text-primary hover:underline">
-                    {bookName}
-                  </h3>
-                </Link>
+                <div className="sticky top-0 bg-background py-2 z-10 border-b border-border mb-3">
+                  <Link href={`/hadith/${group.bookSlug}`}>
+                    <h3 className="font-arabic text-lg font-semibold text-primary hover:underline">
+                      {bookName}
+                    </h3>
+                  </Link>
+                </div>
                 {Object.entries(group.chapters).map(([chapterTitle, items]) => (
                   <div key={chapterTitle} className="mb-3">
                     <h4 className="font-arabic text-sm font-medium text-muted-foreground mb-2 px-1">
@@ -135,35 +135,33 @@ export default function FavoritesPage() {
                     </h4>
                     <div className="space-y-2">
                       {items.map((item) => (
-                        <Card key={item.id} className="border shadow-sm">
-                          <CardContent className="p-3 flex items-start gap-3">
-                            <Link
-                              href={`/hadith/${item.bookSlug}/${item.hadithId}`}
-                              className="flex-1 min-w-0"
-                            >
-                              <div className="font-arabic leading-relaxed text-foreground text-sm line-clamp-2">
-                                {item.text}
-                              </div>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="outline" className="text-xs">
-                                  حديث رقم {item.hadithId}
-                                </Badge>
-                                {item.narrator && (
-                                  <span className="text-xs text-muted-foreground">
-                                    {item.narrator.slice(0, 30)}
-                                  </span>
-                                )}
-                              </div>
-                            </Link>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeFavorite(item.id)}
-                            >
-                              <Trash2 className="size-4 text-muted-foreground hover:text-red-500" />
-                            </Button>
-                          </CardContent>
-                        </Card>
+                        <div key={item.id} className="bg-card rounded-lg p-4 flex items-start gap-3">
+                          <Link
+                            href={`/hadith/${item.bookSlug}/${item.hadithId}`}
+                            className="flex-1 min-w-0"
+                          >
+                            <div className="font-arabic leading-relaxed text-foreground text-sm line-clamp-2">
+                              {item.text}
+                            </div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-medium">
+                                حديث رقم {item.hadithId}
+                              </span>
+                              {item.narrator && (
+                                <span className="text-xs text-muted-foreground">
+                                  {item.narrator.slice(0, 30)}
+                                </span>
+                              )}
+                            </div>
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeFavorite(item.id)}
+                          >
+                            <Trash2 className="size-4 text-muted-foreground hover:text-red-500" />
+                          </Button>
+                        </div>
                       ))}
                     </div>
                   </div>

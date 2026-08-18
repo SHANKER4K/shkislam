@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, Image } from "lucide-react";
+import { ChevronDown, ChevronUp, Share } from "lucide-react";
 import { CopyButton } from "./copy-button";
 import { ExportModal } from "./export-modal";
 import { FavoriteButton } from "./favorite-button";
@@ -36,75 +35,67 @@ export function VerseCard({
   const citationText = formatVerseCitation(textUthmani, surahName, verseNumber);
 
   return (
-    <Card key={ayahId} className="border-0 shadow-none">
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex-1">
-            <Link key={ayahId} href={`/quran/${surahNumber}/${verseNumber}`}>
-              <div
-                className="font-quran leading-loose text-foreground mb-3"
-                style={{ fontSize: `${fontSize}px`, lineHeight: "2" }}
-              >
-                {textUthmani}
-                <span className="inline-flex items-center justify-center size-7 rounded-full bg-primary/10 text-primary text-xs font-arabic font-semibold mx-2 align-middle">
-                  {verseNumber}
-                </span>
-              </div>
-            </Link>
-
-            {tafsirText && (
-              <div className="mt-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowTafsir(!showTafsir)}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  التفسير الميسر
-                  {showTafsir ? (
-                    <ChevronUp className="mr-1 size-4" />
-                  ) : (
-                    <ChevronDown className="mr-1 size-4" />
-                  )}
-                </Button>
-
-                {showTafsir && (
-                  <div className="mt-2 rounded-lg bg-muted/50 p-4 text-sm leading-relaxed text-muted-foreground">
-                    <div
-                      dangerouslySetInnerHTML={{ __html: tafsirText }}
-                      className="font-arabic [&_span.green]:text-green-600 [&_span.green]:dark:text-green-400"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <FavoriteButton
-            isFavorited={isFavorite(`ayah-${surahNumber}-${verseNumber}`)}
-            onToggle={() =>
-              toggleFavorite({
-                type: "ayah",
-                surahNumber,
-                verseNumber,
-                textUthmani,
-                surahNameAr: surahName,
-              } as FavoriteItem)
-            }
-          />
-          <CopyButton text={textUthmani} citationText={citationText} />
-          <ExportModal
-            text={textUthmani}
-            source={`${surahName} - الآية ${verseNumber}`}
-            type="ayah"
-          >
-            <Button variant="ghost" size="sm">
-              {/* eslint-disable-next-line jsx-a11y/alt-text */}
-              <Image className="size-4" />
-            </Button>
-          </ExportModal>
+    <div className="group relative py-5 border-b border-border last:border-b-0">
+      <Link key={ayahId} href={`/quran/${surahNumber}/${verseNumber}`}>
+        <div
+          className="font-quran leading-[2] text-foreground cursor-pointer"
+          style={{ fontSize: `${fontSize}px` }}
+        >
+          {textUthmani}
+          <span className="inline-flex items-center justify-center size-7 rounded-full bg-muted text-foreground text-xs font-bold tabular-nums mx-2 align-middle">
+            {verseNumber}
+          </span>
         </div>
-      </CardContent>
-    </Card>
+      </Link>
+
+      <div className="flex items-center gap-1 mt-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150">
+        <FavoriteButton
+          isFavorited={isFavorite(`ayah-${surahNumber}-${verseNumber}`)}
+          onToggle={() =>
+            toggleFavorite({
+              type: "ayah",
+              surahNumber,
+              verseNumber,
+              textUthmani,
+              surahNameAr: surahName,
+            } as FavoriteItem)
+          }
+        />
+        <CopyButton text={textUthmani} citationText={citationText} />
+        <ExportModal
+          text={textUthmani}
+          source={`${surahName} - الآية ${verseNumber}`}
+          type="ayah"
+        >
+          <Button variant="ghost" size="icon" className="size-8 rounded-full hover:bg-muted">
+            <Share className="size-4 stroke-[1.5]" />
+          </Button>
+        </ExportModal>
+        {tafsirText && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowTafsir(!showTafsir)}
+            className="text-muted-foreground hover:text-foreground gap-1"
+          >
+            التفسير الميسر
+            {showTafsir ? (
+              <ChevronUp className="size-4 stroke-[1.5]" />
+            ) : (
+              <ChevronDown className="size-4 stroke-[1.5]" />
+            )}
+          </Button>
+        )}
+      </div>
+
+      {tafsirText && showTafsir && (
+        <div className="mt-3 rounded-xl bg-card border-r-2 border-primary p-5 text-sm leading-relaxed text-muted-foreground">
+          <div
+            dangerouslySetInnerHTML={{ __html: tafsirText }}
+            className="font-arabic [&_span.green]:text-green-700 [&_span.green]:dark:text-green-400"
+          />
+        </div>
+      )}
+    </div>
   );
 }

@@ -18,11 +18,9 @@ import {
   PromptInputSubmit,
 } from "@/src/components/ai-elements/prompt-input";
 import { ChatContainerScrollAnchor } from "@/components/ui/chat-container";
-import { Shimmer } from "@/src/components/ai-elements/shimmer";
 import { Tool } from "@/components/ui/tool";
 import { CopyButton } from "@/src/components/copy-button";
-import Logo from "@/assets/logo.png";
-import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 type ChatMessage =
   | {
@@ -178,32 +176,30 @@ export default function HomePage() {
       <Conversation className="flex-1">
         <ConversationContent className="max-w-3xl mx-auto w-full px-4 py-8">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 py-24 text-center gap-10">
-              <div className="flex flex-col items-center gap-4">
-                <Image
-                  src={Logo}
-                  alt="SHK Islam"
-                  width={56}
-                  height={56}
-                  className="rounded-md opacity-90"
-                />
-                <h1 className="font-arabic text-3xl font-bold tracking-tight">
-                  كيف يمكنني مساعدتك؟
+            <div className="flex flex-col items-center justify-center flex-1 py-24 text-center gap-8">
+              {/* CSS ornament — two hairlines + rotated square */}
+              <div className="relative w-12 h-12 flex items-center justify-center mb-2">
+                <div className="absolute w-full h-px bg-primary/30" />
+                <div className="absolute h-full w-px bg-primary/30" />
+                <div className="size-3 rotate-45 bg-primary/20" />
+              </div>
+
+              <div className="flex flex-col items-center gap-3">
+                <h1 className="font-arabic text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
+                  ما الذي تريد أن تتعلمه؟
                 </h1>
-                <p className="text-muted-foreground text-sm max-w-md">
-                  اسأل عن أي آية أو حديث أو مسألة، وسأجيبك مع ذكر المصادر من
-                  القرآن والسنة
+                <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">
+                  اسأل عن آية أو حديث أو مسألة، وسأجيبك بمصادر من القرآن والسنة
                 </p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
+
+              <div className="flex flex-wrap justify-center gap-2 w-full max-w-lg">
                 {suggestedPrompts.map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
-                    onClick={() => {
-                      setInput(prompt);
-                    }}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors rounded-xl border border-border bg-card/50 px-4 py-3 text-start hover:bg-card"
+                    onClick={() => setInput(prompt)}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150 rounded-lg border border-border bg-card px-4 py-2.5 text-start hover:bg-secondary"
                   >
                     {prompt}
                   </button>
@@ -228,34 +224,43 @@ export default function HomePage() {
                     }}
                   />
                 ) : (
-                  <Message
-                    from={msg.role}
-                    key={i}
-                    className="group/message relative"
-                  >
-                    <MessageContent>
-                      <MessageResponse>{msg.content}</MessageResponse>
-                    </MessageContent>
-                    {msg.role === "assistant" && (
-                      <div className="mt-2 opacity-0 group-hover/message:opacity-100 transition-opacity">
-                        <div className="absolute left-0">
-                          <CopyButton
-                            text={msg.content.trim()}
-                            variant="ghost"
-                            size="icon"
-                          />
+                  <div className={cn(msg.role === "user" && "flex justify-end")}>
+                    <Message
+                      from={msg.role}
+                      key={i}
+                      className={cn(
+                        "group/message relative max-w-[70ch]",
+                        msg.role === "user" && "bg-muted/60 rounded-xl px-5 py-3"
+                      )}
+                    >
+                      <MessageContent>
+                        <MessageResponse className={cn(msg.role === "assistant" && "text-foreground leading-relaxed")}>
+                          {msg.content}
+                        </MessageResponse>
+                      </MessageContent>
+                      {msg.role === "assistant" && (
+                        <div className="mt-2 opacity-100 md:opacity-0 md:group-hover/message:opacity-100 transition-opacity duration-150">
+                          <div className="absolute left-0">
+                            <CopyButton
+                              text={msg.content.trim()}
+                              variant="ghost"
+                              size="icon"
+                            />
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </Message>
+                      )}
+                    </Message>
+                  </div>
                 )}
               </Fragment>
             ))
           )}
-          {status == "loading" && (
-            <Shimmer duration={3} spread={3}>
-              سوف ادهشك!
-            </Shimmer>
+          {status === "loading" && (
+            <div className="space-y-3 my-4 animate-pulse">
+              <div className="h-4 bg-muted rounded-md w-3/4" />
+              <div className="h-4 bg-muted rounded-md w-1/2" />
+              <div className="h-20 bg-muted rounded-xl w-full border-r-2 border-primary/30" />
+            </div>
           )}
         </ConversationContent>
         <ChatContainerScrollAnchor />
@@ -263,20 +268,22 @@ export default function HomePage() {
       </Conversation>
 
       <div className="max-w-3xl mx-auto w-full px-4 pb-4 pt-2">
-        <PromptInput onSubmit={handleSubmit} className="relative w-full">
-          <PromptInputTextarea
-            value={input}
-            placeholder="اكتب سؤالك هنا..."
-            onChange={(e) => setInput(e.currentTarget.value)}
-            className="pr-12 rounded-2xl border bg-card shadow-none"
-          />
-          <PromptInputSubmit
-            status={status === "loading" ? "submitted" : "ready"}
-            disabled={!input.trim() || status === "loading"}
-            className="absolute bottom-1 right-1"
-          />
-        </PromptInput>
-        <p className="mt-2 text-center text-xs text-muted-foreground/70">
+        <div className="bg-card rounded-2xl border border-input shadow-sm p-2">
+          <PromptInput onSubmit={handleSubmit} className="relative w-full">
+            <PromptInputTextarea
+              value={input}
+              placeholder="اكتب سؤالك هنا..."
+              onChange={(e) => setInput(e.currentTarget.value)}
+              className="pr-14 rounded-xl border-0 bg-transparent shadow-none resize-none min-h-[44px] max-h-[200px] placeholder:text-muted-foreground"
+            />
+            <PromptInputSubmit
+              status={status === "loading" ? "submitted" : "ready"}
+              disabled={!input.trim() || status === "loading"}
+              className="absolute bottom-2 right-2 size-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:brightness-110 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
+            />
+          </PromptInput>
+        </div>
+        <p className="mt-2 text-center text-xs text-muted-foreground/60">
           قد يخطئ الذكاء الاصطناعي، تحقق من المصادر
         </p>
       </div>
