@@ -7,7 +7,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Combobox } from "@/components/ui/combobox";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 import {
   COLLECTIONS,
   FILTER_SCHEMA,
@@ -25,7 +32,7 @@ const METHOD_LABELS: Record<Method, string> = {
   hybrid: "Hybrid",
 };
 
-const COLLECTION_OPTIONS = COLLECTIONS.map((c) => ({ value: c, label: c }));
+// const COLLECTION_OPTIONS = COLLECTIONS.map((c) => ({ value: c, label: c }));
 
 export function VectorSearchTool() {
   const [method, setMethod] = useState<Method>("hybrid");
@@ -82,8 +89,9 @@ export function VectorSearchTool() {
   const setFilter = (key: string, value: string) => {
     setFilters((prev) => {
       const next = { ...prev };
-      if (value === "") delete next[key];
+      if (value === "" || value == null) delete next[key];
       else next[key] = value;
+      console.log(next);
       return next;
     });
   };
@@ -123,13 +131,25 @@ export function VectorSearchTool() {
             <div className="space-y-2">
               <span className="text-sm font-medium">المجموعة</span>
               <Combobox
-                value={collection}
+                defaultValue={COLLECTIONS[0]}
                 onValueChange={(v) => {
                   setCollection(v as Collection);
                   setFilters({});
                 }}
-                options={COLLECTION_OPTIONS}
-              />
+                items={COLLECTIONS}
+              >
+                <ComboboxInput placeholder="Select a framework" />
+                <ComboboxContent>
+                  <ComboboxEmpty>No items found.</ComboboxEmpty>
+                  <ComboboxList>
+                    {(item) => (
+                      <ComboboxItem key={item} value={item}>
+                        {item}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -182,11 +202,39 @@ export function VectorSearchTool() {
                       <Combobox
                         value={filters[key] ?? ""}
                         onValueChange={(v) => setFilter(key, v)}
-                        options={suggestions.map((s) => ({
-                          value: s,
-                          label: s,
-                        }))}
-                        placeholder={`اختر ${key}...`}
+                        items={suggestions}
+                      >
+                        {("book_name" in filters && key !== "book_name") ||
+                        ("category_name" in filters &&
+                          key !== "category_name") ? (
+                          <ComboboxInput
+                            placeholder="اختر"
+                            showClear
+                            disabled
+                          />
+                        ) : (
+                          <ComboboxInput placeholder="اختر" showClear />
+                        )}
+                        <ComboboxContent>
+                          <ComboboxEmpty>No items found.</ComboboxEmpty>
+                          <ComboboxList>
+                            {(item) => (
+                              <ComboboxItem key={item} value={item}>
+                                {item}
+                              </ComboboxItem>
+                            )}
+                          </ComboboxList>
+                        </ComboboxContent>
+                      </Combobox>
+                    ) : "book_name" in filters ? (
+                      <Input
+                        id={`filter-${key}`}
+                        dir={kind === "int" ? "ltr" : "rtl"}
+                        type={kind === "int" ? "number" : "text"}
+                        value={filters[key] ?? ""}
+                        onChange={(e) => setFilter(key, e.target.value)}
+                        placeholder={kind === "int" ? "رقم" : "نص"}
+                        disabled
                       />
                     ) : (
                       <Input
