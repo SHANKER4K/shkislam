@@ -45,7 +45,11 @@ export function AppSidebar() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <Sidebar side="right" collapsible="icon" className="border-l border-sidebar-border">
+    <Sidebar
+      side="right"
+      collapsible="icon"
+      className="border-l border-sidebar-border"
+    >
       <SidebarHeader className="px-3 py-3">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -63,7 +67,9 @@ export function AppSidebar() {
                   height={28}
                   className="rounded-sm shrink-0"
                 />
-                <span className="font-arabic text-base font-bold">SHK Islam</span>
+                <span className="font-arabic text-base font-bold">
+                  SHK Islam
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -85,7 +91,9 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
-                const active = pathname === item.href || pathname.startsWith(item.href + "/");
+                const active =
+                  pathname === item.href ||
+                  pathname.startsWith(item.href + "/");
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
@@ -94,7 +102,8 @@ export function AppSidebar() {
                       tooltip={item.label}
                       className={cn(
                         "text-sm transition-colors duration-150",
-                        active && "border-r-2 border-sidebar-primary text-sidebar-primary bg-sidebar-accent"
+                        active &&
+                          "border-r-2 border-sidebar-primary text-sidebar-primary bg-sidebar-accent",
                       )}
                     >
                       <Link href={item.href}>

@@ -519,7 +519,8 @@ export function buildSearchUrl(
     filters: Record<string, unknown>;
   },
 ): string {
-  const url = new URL(`http://localhost:8000/chat/${method}_search`);
+  const backend_url = process.env.NEXT_PUBLIC_API_URL;
+  const url = new URL(`${backend_url}/chat/${method}_search`);
   url.searchParams.set("collection", params.collection);
   url.searchParams.set("query_text", params.query_text);
   url.searchParams.set("top_k", String(params.top_k));

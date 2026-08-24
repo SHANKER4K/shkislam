@@ -5,89 +5,150 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #F5F0E6;
-  --foreground: #3A2E22;
-  --card: #FAF7F0;
-  --card-foreground: #3A2E22;
-  --popover: #FAF7F0;
-  --popover-foreground: #3A2E22;
-  --primary: #B4552D;
-  --primary-foreground: #FAF7F0;
-  --secondary: #EDE7DB;
-  --secondary-foreground: #3A2E22;
-  --muted: #E8E0D2;
-  --muted-foreground: #8A7D6E;
-  --accent: #F0E9DC;
-  --accent-foreground: #3A2E22;
-  --destructive: #9B2C2C;
-  --destructive-foreground: #FAF7F0;
-  --border: #DDD5C5;
-  --input: #DDD5C5;
-  --ring: #B4552D;
-  --sidebar: #2B2118;
-  --sidebar-foreground: #E8D9C3;
-  --sidebar-primary: #D97A4A;
-  --sidebar-primary-foreground: #2B2118;
-  --sidebar-accent: #3D3024;
-  --sidebar-accent-foreground: #FAF7F0;
-  --sidebar-border: #4A3B2E;
-  --sidebar-ring: #D97A4A;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  /* Hex Palette References:
+     Dark Spruce:   #2b4625 -> oklch(0.3601 0.0634 142.11)
+     Fern:          #436a36 -> oklch(0.4851 0.0827 141.52)
+     Camel:         #b29457 -> oklch(0.6723 0.0898 87.21)
+     Golden Earth:  #986e34 -> oklch(0.5518 0.1034 76.84)
+     Brown Bark:    #5d431d -> oklch(0.3802 0.0768 72.15)
+  */
+
+  --background: oklch(0.965 0.015 87.21); /* Very light camel tint */
+  --foreground: oklch(0.25 0.04 142.11); /* Deep forest spruce text */
+  --card: oklch(0.935 0.025 87.21); /* Soft warm camel background */
+  --card-foreground: oklch(0.25 0.04 142.11); /* Deep forest spruce text */
+  --popover: oklch(0.935 0.025 87.21); /* Soft warm camel background */
+  --popover-foreground: oklch(0.25 0.04 142.11); /* Deep forest spruce text */
+  --primary: oklch(0.3601 0.0634 142.11); /* Dark Spruce */
+  --primary-foreground: oklch(0.965 0.015 87.21); /* Light cream tint */
+  --secondary: oklch(0.6723 0.0898 87.21); /* Camel */
+  --secondary-foreground: oklch(0.25 0.04 142.11); /* Deep forest spruce text */
+  --muted: oklch(0.88 0.03 87.21); /* Muted light earth */
+  --muted-foreground: oklch(0.4851 0.0827 141.52); /* Fern */
+  --accent: oklch(0.5518 0.1034 76.84); /* Golden Earth */
+  --accent-foreground: oklch(0.965 0.015 87.21); /* Light cream tint */
+  --destructive: oklch(0.55 0.18 28); /* Deep rust for errors */
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.6723 0.0898 87.21 / 0.35); /* Soft Camel border */
+  --input: oklch(0.6723 0.0898 87.21 / 0.35); /* Soft Camel border */
+  --ring: oklch(0.4851 0.0827 141.52); /* Fern focus ring */
+
+  --chart-1: oklch(0.3601 0.0634 142.11); /* Dark Spruce */
+  --chart-2: oklch(0.4851 0.0827 141.52); /* Fern */
+  --chart-3: oklch(0.5518 0.1034 76.84); /* Golden Earth */
+  --chart-4: oklch(0.6723 0.0898 87.21); /* Camel */
+  --chart-5: oklch(0.3802 0.0768 72.15); /* Brown Bark */
+
+  --sidebar: oklch(0.92 0.025 87.21);
+  --sidebar-foreground: oklch(0.25 0.04 142.11);
+  --sidebar-primary: oklch(0.3601 0.0634 142.11);
+  --sidebar-primary-foreground: oklch(0.965 0.015 87.21);
+  --sidebar-accent: oklch(0.6723 0.0898 87.21 / 0.25);
+  --sidebar-accent-foreground: oklch(0.25 0.04 142.11);
+  --sidebar-border: oklch(0.6723 0.0898 87.21 / 0.3);
+  --sidebar-ring: oklch(0.4851 0.0827 141.52);
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --radius: 0.5rem;
-  --shadow-2xs: 0 1px 2px 0px hsl(25 20% 18% / 0.03);
-  --shadow-xs: 0 1px 2px 0px hsl(25 20% 18% / 0.03);
-  --shadow-sm: 0 1px 3px 0px hsl(25 20% 18% / 0.04);
-  --shadow: 0 1px 3px 0px hsl(25 20% 18% / 0.05);
-  --shadow-md: 0 4px 12px -2px hsl(25 20% 18% / 0.06);
-  --shadow-lg: 0 8px 20px -4px hsl(25 20% 18% / 0.07);
-  --shadow-xl: 0 12px 28px -6px hsl(25 20% 18% / 0.08);
-  --shadow-2xl: 0 16px 40px -8px hsl(25 20% 18% / 0.09);
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  --radius: 0.575rem;
+  --shadow-x: 0;
+  --shadow-y: 0px;
+  --shadow-blur: 3px;
+  --shadow-spread: 1px;
+  --shadow-opacity: 0.25;
+  --shadow-color: oklch(0.3601 0.0634 142.11 / 0.15);
+  --shadow-2xs: 0 0px 3px 1px oklch(0.3601 0.0634 142.11 / 0.08);
+  --shadow-xs: 0 0px 3px 1px oklch(0.3601 0.0634 142.11 / 0.08);
+  --shadow-sm:
+    0 0px 3px 1px oklch(0.3601 0.0634 142.11 / 0.15),
+    0 1px 2px 0px oklch(0.3601 0.0634 142.11 / 0.15);
+  --shadow:
+    0 0px 3px 1px oklch(0.3601 0.0634 142.11 / 0.15),
+    0 1px 2px 0px oklch(0.3601 0.0634 142.11 / 0.15);
+  --shadow-md:
+    0 0px 3px 1px oklch(0.3601 0.0634 142.11 / 0.15),
+    0 2px 4px 0px oklch(0.3601 0.0634 142.11 / 0.15);
+  --shadow-lg:
+    0 0px 3px 1px oklch(0.3601 0.0634 142.11 / 0.15),
+    0 4px 6px 0px oklch(0.3601 0.0634 142.11 / 0.15);
+  --shadow-xl:
+    0 0px 3px 1px oklch(0.3601 0.0634 142.11 / 0.15),
+    0 8px 10px 0px oklch(0.3601 0.0634 142.11 / 0.15);
+  --shadow-2xl: 0 0px 3px 1px oklch(0.3601 0.0634 142.11 / 0.35);
   --tracking-normal: 0em;
-  --spacing: 0.25rem;
+  --spacing: 0.24rem;
 }
 
 .dark {
-  --background: #1E1710;
-  --foreground: #E8D9C3;
-  --card: #282018;
-  --card-foreground: #E8D9C3;
-  --popover: #282018;
-  --popover-foreground: #E8D9C3;
-  --primary: #D97A4A;
-  --primary-foreground: #1E1710;
-  --secondary: #3D3024;
-  --secondary-foreground: #E8D9C3;
-  --muted: #352A1F;
-  --muted-foreground: #A08A6E;
-  --accent: #3D3024;
-  --accent-foreground: #E8D9C3;
-  --destructive: #EF4444;
-  --destructive-foreground: #FAF7F0;
-  --border: #4A3B2E;
-  --input: #4A3B2E;
-  --ring: #D97A4A;
-  --sidebar: #16100C;
-  --sidebar-foreground: #E8D9C3;
-  --sidebar-primary: #E88F60;
-  --sidebar-primary-foreground: #16100C;
-  --sidebar-accent: #2B2118;
-  --sidebar-accent-foreground: #FAF7F0;
-  --sidebar-border: #3D3024;
-  --sidebar-ring: #E88F60;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --background: oklch(0.2 0.04 142.11); /* Deep Dark Spruce */
+  --foreground: oklch(0.85 0.06 87.21); /* Soft Warm Camel */
+  --card: oklch(0.24 0.045 142.11); /* Dark Forest Card Surface */
+  --card-foreground: oklch(0.85 0.06 87.21); /* Soft Warm Camel */
+  --popover: oklch(0.24 0.045 142.11); /* Dark Forest Card Surface */
+  --popover-foreground: oklch(0.85 0.06 87.21); /* Soft Warm Camel */
+  --primary: oklch(0.6723 0.0898 87.21); /* Camel */
+  --primary-foreground: oklch(0.2 0.04 142.11); /* Deep Dark Spruce */
+  --secondary: oklch(0.3802 0.0768 72.15); /* Brown Bark */
+  --secondary-foreground: oklch(0.85 0.06 87.21); /* Soft Warm Camel */
+  --muted: oklch(0.28 0.04 142.11); /* Muted Spruce */
+  --muted-foreground: oklch(0.6723 0.0898 87.21); /* Camel */
+  --accent: oklch(0.4851 0.0827 141.52); /* Fern */
+  --accent-foreground: oklch(0.965 0.015 87.21); /* Light cream tint */
+  --destructive: oklch(0.55 0.18 28); /* Deep rust for errors */
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.32 0.04 142.11); /* Dark Spruce Border */
+  --input: oklch(0.32 0.04 142.11); /* Dark Spruce Border */
+  --ring: oklch(0.6723 0.0898 87.21); /* Camel ring */
+
+  --chart-1: oklch(0.6723 0.0898 87.21); /* Camel */
+  --chart-2: oklch(0.4851 0.0827 141.52); /* Fern */
+  --chart-3: oklch(0.5518 0.1034 76.84); /* Golden Earth */
+  --chart-4: oklch(0.3802 0.0768 72.15); /* Brown Bark */
+  --chart-5: oklch(0.3601 0.0634 142.11); /* Dark Spruce */
+
+  --sidebar: oklch(0.22 0.04 142.11);
+  --sidebar-foreground: oklch(0.85 0.06 87.21);
+  --sidebar-primary: oklch(0.6723 0.0898 87.21);
+  --sidebar-primary-foreground: oklch(0.2 0.04 142.11);
+  --sidebar-accent: oklch(0.3802 0.0768 72.15);
+  --sidebar-accent-foreground: oklch(0.85 0.06 87.21);
+  --sidebar-border: oklch(0.32 0.04 142.11);
+  --sidebar-ring: oklch(0.6723 0.0898 87.21);
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --radius: 0.5rem;
-  --shadow-2xs: 0 1px 2px 0px hsl(30 25% 10% / 0.04);
-  --shadow-xs: 0 1px 2px 0px hsl(30 25% 10% / 0.04);
-  --shadow-sm: 0 1px 3px 0px hsl(30 25% 10% / 0.05);
-  --shadow: 0 1px 3px 0px hsl(30 25% 10% / 0.06);
-  --shadow-md: 0 4px 12px -2px hsl(30 25% 10% / 0.07);
-  --shadow-lg: 0 8px 20px -4px hsl(30 25% 10% / 0.08);
-  --shadow-xl: 0 12px 28px -6px hsl(30 25% 10% / 0.09);
-  --shadow-2xl: 0 16px 40px -8px hsl(30 25% 10% / 0.10);
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  --radius: 0.575rem;
+  --shadow-x: 0;
+  --shadow-y: 0px;
+  --shadow-blur: 3px;
+  --shadow-spread: 1px;
+  --shadow-opacity: 0.25;
+  --shadow-color: oklch(0 0 0 / 0.5);
+  --shadow-2xs: 0 0px 3px 1px oklch(0 0 0 / 0.2);
+  --shadow-xs: 0 0px 3px 1px oklch(0 0 0 / 0.2);
+  --shadow-sm:
+    0 0px 3px 1px oklch(0 0 0 / 0.35), 0 1px 2px 0px oklch(0 0 0 / 0.35);
+  --shadow:
+    0 0px 3px 1px oklch(0 0 0 / 0.35), 0 1px 2px 0px oklch(0 0 0 / 0.35);
+  --shadow-md:
+    0 0px 3px 1px oklch(0 0 0 / 0.35), 0 2px 4px 0px oklch(0 0 0 / 0.35);
+  --shadow-lg:
+    0 0px 3px 1px oklch(0 0 0 / 0.35), 0 4px 6px 0px oklch(0 0 0 / 0.35);
+  --shadow-xl:
+    0 0px 3px 1px oklch(0 0 0 / 0.35), 0 8px 10px 0px oklch(0 0 0 / 0.35);
+  --shadow-2xl: 0 0px 3px 1px oklch(0 0 0 / 0.6);
 }
 
 @theme inline {
@@ -124,12 +185,10 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-arabic: var(--font-tajawal);
-  --font-quran: var(--font-uthmanic);
-
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -143,6 +202,9 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+
+  --font-arabic: var(--font-tajawal);
+  --font-quran: var(--font-uthmanic);
 }
 
 @layer base {
@@ -197,14 +259,17 @@
 
 @layer utilities {
   .transition-default {
-    transition-property: color, background-color, border-color, opacity, transform;
+    transition-property:
+      color, background-color, border-color, opacity, transform;
     transition-duration: 150ms;
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+  *,
+  ::before,
+  ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

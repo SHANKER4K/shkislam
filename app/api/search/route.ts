@@ -76,9 +76,10 @@ export async function POST(request: NextRequest) {
       filters: filters_,
     });
   } catch (err) {
+    const backend_url = process.env.NEXT_PUBLIC_API_URL;
     const msg = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: `cannot reach localhost:8000: ${msg}` },
+      { error: `cannot reach ${backend_url}: ${msg}` },
       { status: 502 },
     );
   }

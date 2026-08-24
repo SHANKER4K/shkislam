@@ -1,8 +1,10 @@
 const getSession = async (session_id) => {
-  const response = await fetch(`http://localhost:8000/sessions/${session_id}`);
+  const backend_url = process.env.NEXT_PUBLIC_API_URL;
+  const response = await fetch(`${backend_url}/sessions/${session_id}`);
   return response.json();
 };
 
 const createSession = async () => {
-  const response = await fetch(`http://localhost:8000/sessions/add`);
+  const backend_url = process.env.NEXT_PUBLIC_API_URL;
+  const response = await fetch(`${backend_url}/sessions/add`);
 };
