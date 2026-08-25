@@ -1,6 +1,6 @@
 import { db } from "@/src/db";
 import { surahs, ayahs } from "@/src/db/schema";
-import { eq, asc, sql, desc } from "drizzle-orm";
+import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
 import { searchQuranAyahs as engineSearch } from "@/src/lib/quran-search-engine";
 
 export async function getAllSurahs() {
@@ -13,7 +13,7 @@ export async function getSurahByNumber(number: number) {
 
 export async function getAyahsBySurahNumber(surahNumber: number) {
   return db
-    .selectDistinctOn([ayahs.numberInSurah], {
+    .select({
       id: ayahs.id,
       numberInSurah: ayahs.numberInSurah,
       textUthmani: ayahs.textUthmani,
@@ -27,7 +27,10 @@ export async function getAyahsBySurahNumber(surahNumber: number) {
     .orderBy(asc(ayahs.numberInSurah));
 }
 
-export async function getAyahBySurahAndVerse(surahNumber: number, verseNumber: number) {
+export async function getAyahBySurahAndVerse(
+  surahNumber: number,
+  verseNumber: number,
+) {
   return db
     .select({
       id: ayahs.id,
@@ -42,7 +45,9 @@ export async function getAyahBySurahAndVerse(surahNumber: number, verseNumber: n
     })
     .from(ayahs)
     .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
-    .where(sql`${surahs.number} = ${surahNumber} AND ${ayahs.numberInSurah} = ${verseNumber}`)
+    .where(
+      and(eq(surahs.number, surahNumber), eq(ayahs.numberInSurah, verseNumber)),
+    )
     .limit(1);
 }
 
@@ -64,19 +69,23 @@ export async function getAllAyahsForSitemap() {
 
 export async function getAdjacentAyahs(surahId: number, currentNumber: number) {
   const [prev] = await db
-    .select({ numberInSurah: ayahs.numberInSurah })
+    .select({
+      numberInSurah: ayahs.numberInSurah,
+    })
     .from(ayahs)
     .where(
-      sql`${ayahs.surahId} = ${surahId} AND ${ayahs.numberInSurah} < ${currentNumber}`,
+      and(eq(ayahs.surahId, surahId), lt(ayahs.numberInSurah, currentNumber)),
     )
     .orderBy(desc(ayahs.numberInSurah))
     .limit(1);
 
   const [next] = await db
-    .select({ numberInSurah: ayahs.numberInSurah })
+    .select({
+      numberInSurah: ayahs.numberInSurah,
+    })
     .from(ayahs)
     .where(
-      sql`${ayahs.surahId} = ${surahId} AND ${ayahs.numberInSurah} > ${currentNumber}`,
+      and(eq(ayahs.surahId, surahId), gt(ayahs.numberInSurah, currentNumber)),
     )
     .orderBy(asc(ayahs.numberInSurah))
     .limit(1);

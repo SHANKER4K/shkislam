@@ -1,15 +1,23 @@
 import { db } from "@/src/db";
-import { hadiths, hadithChapters, hadithBooks, hadithsWithSanadMatn } from "@/src/db/schema";
+import {
+  hadiths,
+  hadithChapters,
+  hadithBooks,
+  hadithsWithSanadMatn,
+} from "@/src/db/schema";
 import { eq, asc, sql, desc } from "drizzle-orm";
 import { ArabicServices } from "arabic-services";
-
 
 export async function getAllBooks() {
   return db.select().from(hadithBooks).orderBy(asc(hadithBooks.id));
 }
 
 export async function getBookBySlug(slug: string) {
-  return db.select().from(hadithBooks).where(eq(hadithBooks.slug, slug)).limit(1);
+  return db
+    .select()
+    .from(hadithBooks)
+    .where(eq(hadithBooks.slug, slug))
+    .limit(1);
 }
 
 export async function getHadithById(id: number) {
@@ -58,7 +66,10 @@ export async function getChaptersByBookSlug(slug: string) {
     .orderBy(asc(hadithChapters.order));
 }
 
-export async function getHadithsByBookSlug(slug: string, chapterOrder?: number) {
+export async function getHadithsByBookSlug(
+  slug: string,
+  chapterOrder?: number,
+) {
   const book = await getBookBySlug(slug);
   if (book.length === 0) return [];
 
@@ -83,7 +94,7 @@ export async function getHadithsByBookSlug(slug: string, chapterOrder?: number) 
       .innerJoin(hadithChapters, eq(hadiths.chapterId, hadithChapters.id))
       .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
       .where(
-        sql`${hadiths.bookId} = ${book[0].id} AND ${hadithChapters.order} = ${chapterOrder}`
+        sql`${hadiths.bookId} = ${book[0].id} AND ${hadithChapters.order} = ${chapterOrder}`,
       )
       .orderBy(asc(hadiths.number));
   }
@@ -138,8 +149,12 @@ export async function searchHadiths(query: string) {
       .from(hadiths)
       .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
       .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
-      .where(sql`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned}) > 0.15`)
-      .orderBy(desc(sql`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned})`))
+      .where(
+        sql`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned}) > 0.15`,
+      )
+      .orderBy(
+        desc(sql`similarity(${sql.raw("hadiths.text_simple")}, ${cleaned})`),
+      )
       .limit(50);
 
     if (trigramResults.length > 0) return trigramResults;
@@ -163,8 +178,14 @@ export async function searchHadiths(query: string) {
     .from(hadiths)
     .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
     .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
-    .where(sql`${sql.raw("hadiths.search_vector")} @@ websearch_to_tsquery('arabic', ${trimmed})`)
-    .orderBy(desc(sql`ts_rank_cd(${sql.raw("hadiths.search_vector")}, websearch_to_tsquery('arabic', ${trimmed}))`))
+    .where(
+      sql`${sql.raw("hadiths.search_vector")} @@ websearch_to_tsquery('arabic', ${trimmed})`,
+    )
+    .orderBy(
+      desc(
+        sql`ts_rank_cd(${sql.raw("hadiths.search_vector")}, websearch_to_tsquery('arabic', ${trimmed}))`,
+      ),
+    )
     .limit(50);
 
   if (ftsResults.length > 0) return ftsResults;
@@ -191,8 +212,14 @@ export async function searchHadiths(query: string) {
         .from(hadiths)
         .innerJoin(hadithBooks, eq(hadiths.bookId, hadithBooks.id))
         .leftJoin(hadithsWithSanadMatn, eq(hadiths.id, hadithsWithSanadMatn.id))
-        .where(sql`${sql.raw("hadiths.search_vector")} @@ websearch_to_tsquery('arabic', ${word})`)
-        .orderBy(desc(sql`ts_rank_cd(${sql.raw("hadiths.search_vector")}, websearch_to_tsquery('arabic', ${word}))`))
+        .where(
+          sql`${sql.raw("hadiths.search_vector")} @@ websearch_to_tsquery('arabic', ${word})`,
+        )
+        .orderBy(
+          desc(
+            sql`ts_rank_cd(${sql.raw("hadiths.search_vector")}, websearch_to_tsquery('arabic', ${word}))`,
+          ),
+        )
         .limit(20);
       for (const row of rows) {
         if (!seen.has(row.id)) {
@@ -242,18 +269,25 @@ export async function getAllHadithsForSitemap() {
     .orderBy(asc(hadiths.id));
 }
 
-export async function getAdjacentHadiths(bookId: number, currentNumber: number) {
+export async function getAdjacentHadiths(
+  bookId: number,
+  currentNumber: number,
+) {
   const [prev] = await db
     .select({ id: hadiths.id, number: hadiths.number })
     .from(hadiths)
-    .where(sql`${hadiths.bookId} = ${bookId} AND ${hadiths.number} < ${currentNumber}`)
+    .where(
+      sql`${hadiths.bookId} = ${bookId} AND ${hadiths.number} < ${currentNumber}`,
+    )
     .orderBy(desc(hadiths.number))
     .limit(1);
 
   const [next] = await db
     .select({ id: hadiths.id, number: hadiths.number })
     .from(hadiths)
-    .where(sql`${hadiths.bookId} = ${bookId} AND ${hadiths.number} > ${currentNumber}`)
+    .where(
+      sql`${hadiths.bookId} = ${bookId} AND ${hadiths.number} > ${currentNumber}`,
+    )
     .orderBy(asc(hadiths.number))
     .limit(1);
 

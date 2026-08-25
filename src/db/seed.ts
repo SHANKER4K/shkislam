@@ -236,7 +236,7 @@ async function seedHadiths() {
           .select({ id: schema.hadithChapters.id })
           .from(schema.hadithChapters)
           .where(
-            sql`${schema.hadithChapters.bookId} = ${bookId} AND ${schema.hadithChapters.order} = ${parseInt(sectionNum)}`
+            sql`${schema.hadithChapters.bookId} = ${bookId} AND ${schema.hadithChapters.order} = ${parseInt(sectionNum)}`,
           )
           .limit(1);
         if (existing) chapterIds.set(parseInt(sectionNum), existing.id);

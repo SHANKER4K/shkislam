@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -7,6 +8,9 @@ import {
   pgEnum,
   uniqueIndex,
   timestamp,
+  uuid,
+  jsonb,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const revelationTypeEnum = pgEnum("revelation_type", [
@@ -20,34 +24,35 @@ export const hadithGradeEnum = pgEnum("hadith_grade", [
 ]);
 export const themeStatusEnum = pgEnum("theme_status", ["draft", "published"]);
 
-export const surahs = pgTable(
-  "surahs",
-  {
-    id: serial("id").primaryKey(),
-    number: integer("number").notNull().unique(),
-    nameAr: text("name_ar").notNull(),
-    nameTranslation: text("name_translation").notNull(),
-    versesCount: integer("verses_count").notNull(),
-    revelationType: revelationTypeEnum("revelation_type").notNull(),
-  },
-  (table) => [index("surahs_number_idx").on(table.number)],
-);
+export const surahs = pgTable("surahs", {
+  id: serial("id").primaryKey(),
+  number: integer("number").notNull().unique(),
+  nameAr: text("name_ar").notNull(),
+  nameTranslation: text("name_translation").notNull(),
+  versesCount: integer("verses_count").notNull(),
+  revelationType: revelationTypeEnum("revelation_type").notNull(),
+});
 
 export const ayahs = pgTable(
   "ayahs",
   {
     id: serial("id").primaryKey(),
+
     surahId: integer("surah_id")
       .notNull()
       .references(() => surahs.id),
+
     numberInSurah: integer("number_in_surah").notNull(),
+
     textUthmani: text("text_uthmani").notNull(),
     textSimple: text("text_simple").notNull(),
     textEn: text("text_en"),
     tafsirText: text("tafsir_text"),
     asbabNuzul: text("asbab_nuzul"),
   },
-  (table) => [index("ayahs_surah_id_idx").on(table.surahId)],
+  (table) => [
+    index("ayahs_surah_id_number_idx").on(table.surahId, table.numberInSurah),
+  ],
 );
 
 export const hadithBooks = pgTable(
@@ -174,4 +179,137 @@ export const themeHadiths = pgTable(
     index("theme_hadiths_hadith_id_idx").on(table.hadithId),
     uniqueIndex("theme_hadiths_unique_idx").on(table.themeId, table.hadithId),
   ],
+);
+
+export const users = pgTable(
+  "users",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    // Telegram-specific identifier. Nullable so other clients (web, etc.)
+    // can create users without a Telegram identity.
+    telegramId: text("telegram_id"),
+
+    username: text("username"),
+    displayName: text("display_name"),
+    email: text("email"),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("users_telegram_id_idx").on(table.telegramId),
+    uniqueIndex("users_email_idx").on(table.email),
+  ],
+);
+
+// ====================
+// API Keys
+// ====================
+// Belongs to the USER, not the session. One key per (user, provider).
+
+export const apiKeys = pgTable(
+  "api_keys",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    provider: text("provider").notNull(),
+
+    // Isolated behind this single column so real encryption (e.g. AES-GCM
+    // with a KMS-managed key) can be dropped in later without touching
+    // callers. Until then this holds the raw key value - never log it,
+    // never return it in API responses.
+    encryptedKey: text("encrypted_key").notNull(),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("api_keys_user_provider_idx").on(table.userId, table.provider),
+    index("api_keys_user_id_idx").on(table.userId),
+  ],
+);
+
+// ====================
+// Sessions
+// ====================
+// Provider/model/variant live here because they describe the configuration
+// of a conversation, not a permanent user setting.
+
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    // "telegram", "web", etc.
+    source: text("source").notNull(),
+
+    modelProvider: text("model_provider"),
+    modelName: text("model_name"),
+    modelVariant: text("model_variant"),
+
+    // Complete PydanticAI message/event representation for this session.
+    pydanticMessage: jsonb("pydantic_message").default([]).notNull(),
+
+    isActive: boolean("is_active").default(true).notNull(),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("sessions_user_id_idx").on(table.userId),
+    // Enforces "only one active session per user" at the DB level.
+    // Partial unique index: only rows where is_active = true participate.
+    uniqueIndex("sessions_one_active_per_user_idx")
+      .on(table.userId)
+      .where(sql`is_active = true`),
+  ],
+);
+
+// ====================
+// Messages
+// ====================
+
+export const messages = pgTable(
+  "messages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => sessions.id, { onDelete: "cascade" }),
+
+    // user / assistant / system / tool
+    role: text("role").notNull(),
+    content: text("content"),
+    metadata: jsonb("metadata"),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [index("messages_session_id_idx").on(table.sessionId)],
 );

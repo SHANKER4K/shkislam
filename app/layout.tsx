@@ -4,7 +4,11 @@ import { Tajawal, Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { AppSidebar } from "@/src/components/app-sidebar";
 import { ReadingProgressProvider } from "@/src/lib/reading-progress";
 import { FavoritesProvider } from "@/src/lib/use-favorites";
@@ -156,7 +160,12 @@ export default function RootLayout({
               <SidebarProvider>
                 <TooltipProvider>
                   <AppSidebar />
-                  <SidebarInset>{children}</SidebarInset>
+                  <SidebarInset>
+                    {/* Mobile-only trigger — the in-sidebar trigger is unreachable
+                        when the Sheet is closed */}
+                    <SidebarTrigger className="fixed top-3 right-3 z-40 md:hidden rounded-lg border border-input bg-background/80 backdrop-blur" />
+                    {children}
+                  </SidebarInset>
                 </TooltipProvider>
                 <Toaster position="top-center" dir="rtl" />
               </SidebarProvider>
