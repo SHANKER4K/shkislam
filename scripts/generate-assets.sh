@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SRC="${1:-assets/logo.png}"
+SRC="${1:-src/assets/logo.png}"
 OUT="public"
 
 echo "Generating from: $SRC"

@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Copy, Check, Image, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { templates } from "@/src/lib/export-templates";
+import { templates } from "@/lib/export-templates";
 
 interface ExportModalProps {
   text: string;

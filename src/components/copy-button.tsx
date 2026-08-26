@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Copy, Check, ChevronDown, FileText, Link, Type } from "lucide-react";
 import { toast } from "sonner";
-import { stripDiacritics } from "@/src/lib/citation";
-import { copyToClipboard } from "@/src/lib/clipboard";
+import { stripDiacritics } from "@/lib/citation";
+import { copyToClipboard } from "@/lib/clipboard";
 
 interface CopyButtonProps {
   text: string;

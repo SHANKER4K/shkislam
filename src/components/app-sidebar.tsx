@@ -29,6 +29,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import Logo from "@/assets/logo.png";
+import { SidebarProfile } from "@/components/sidebar-profile";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -121,6 +122,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
+          <SidebarProfile />
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}

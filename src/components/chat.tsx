@@ -19,7 +19,7 @@ import {
   PromptInputSelectItem,
   PromptInputSelectValue,
   usePromptInputController,
-} from "@/src/components/ai-elements/prompt-input";
+} from "@/components/ai-elements/prompt-input";
 import {
   ModelSelector,
   ModelSelectorContent,
@@ -32,20 +32,20 @@ import {
   ModelSelectorLogoGroup,
   ModelSelectorName,
   ModelSelectorTrigger,
-} from "@/src/components/ai-elements/model-selector";
+} from "@/components/ai-elements/model-selector";
 import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
-} from "@/src/components/ai-elements/conversation";
+} from "@/components/ai-elements/conversation";
 import {
   Message,
   MessageContent,
   MessageResponse,
-} from "@/src/components/ai-elements/message";
+} from "@/components/ai-elements/message";
 import { ChatContainerScrollAnchor } from "@/components/ui/chat-container";
 import { Tool } from "@/components/ui/tool";
-import { CopyButton } from "@/src/components/copy-button";
+import { CopyButton } from "@/components/copy-button";
 import { cn } from "@/lib/utils";
 
 export type ChatModel = {

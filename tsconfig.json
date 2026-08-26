@@ -14,7 +14,7 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
-    "paths": { "@/*": ["./*"] },
+    "paths": { "@/*": ["./src/*"] },
     "plugins": [{ "name": "next" }]
   },
   "include": [
@@ -26,6 +26,7 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/*.test.ts"
   ]
 }

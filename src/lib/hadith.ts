@@ -1,10 +1,10 @@
-import { db } from "@/src/db";
+import { db } from "@/db";
 import {
   hadiths,
   hadithChapters,
   hadithBooks,
   hadithsWithSanadMatn,
-} from "@/src/db/schema";
+} from "@/db/schema";
 import { eq, asc, sql, desc } from "drizzle-orm";
 import { ArabicServices } from "arabic-services";
 

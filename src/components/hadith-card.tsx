@@ -6,8 +6,8 @@ import { ChevronDown, ChevronUp, Share } from "lucide-react";
 import { CopyButton } from "./copy-button";
 import { ExportModal } from "./export-modal";
 import { FavoriteButton } from "./favorite-button";
-import { useFavorites, type FavoriteItem } from "@/src/lib/use-favorites";
-import { formatHadithCitation } from "@/src/lib/citation";
+import { useFavorites, type FavoriteItem } from "@/lib/use-favorites";
+import { formatHadithCitation } from "@/lib/citation";
 import Link from "next/link";
 
 interface HadithCardProps {

@@ -11,7 +11,9 @@ import {
   uuid,
   jsonb,
   boolean,
+  varchar,
 } from "drizzle-orm/pg-core";
+import * as t from "drizzle-orm/pg-core";
 
 export const revelationTypeEnum = pgEnum("revelation_type", [
   "Meccan",
@@ -21,6 +23,12 @@ export const hadithGradeEnum = pgEnum("hadith_grade", [
   "Sahih",
   "Hasan",
   "Dhaeef",
+]);
+export const messageRoleEnum = pgEnum("message_role", [
+  "user",
+  "assistant",
+  "system",
+  "tool",
 ]);
 export const themeStatusEnum = pgEnum("theme_status", ["draft", "published"]);
 
@@ -55,16 +63,12 @@ export const ayahs = pgTable(
   ],
 );
 
-export const hadithBooks = pgTable(
-  "hadith_books",
-  {
-    id: serial("id").primaryKey(),
-    nameAr: text("name_ar").notNull(),
-    nameEn: text("name_en").notNull(),
-    slug: text("slug").notNull().unique(),
-  },
-  (table) => [uniqueIndex("hadith_books_slug_idx").on(table.slug)],
-);
+export const hadithBooks = pgTable("hadith_books", {
+  id: serial("id").primaryKey(),
+  nameAr: text("name_ar").notNull(),
+  nameEn: text("name_en").notNull(),
+  slug: text("slug").notNull().unique(),
+});
 
 export const hadithChapters = pgTable(
   "hadith_chapters",
@@ -124,20 +128,16 @@ export const hadithsWithSanadMatn = pgTable("hadiths_with_sanad_matn", {
   matn: text("matn"),
 });
 
-export const themes = pgTable(
-  "themes",
-  {
-    id: serial("id").primaryKey(),
-    slug: text("slug").notNull().unique(),
-    nameAr: text("name_ar").notNull(),
-    nameEn: text("name_en").notNull(),
-    description: text("description"),
-    status: themeStatusEnum("status").notNull().default("draft"),
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
-  },
-  (table) => [uniqueIndex("themes_slug_idx").on(table.slug)],
-);
+export const themes = pgTable("themes", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  nameAr: text("name_ar").notNull(),
+  nameEn: text("name_en").notNull(),
+  description: text("description"),
+  status: themeStatusEnum("status").notNull().default("draft"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
 
 export const themeAyahs = pgTable(
   "theme_ayahs",
@@ -181,31 +181,109 @@ export const themeHadiths = pgTable(
   ],
 );
 
-export const users = pgTable(
-  "users",
+export const users = pgTable("users", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  // Telegram-specific identifier. Nullable so other clients (web, etc.)
+  // can create users without a Telegram identity.
+  telegramId: text("telegram_id").unique(),
+
+  username: text("username"),
+  displayName: text("display_name"),
+  email: varchar("email", { length: 255 }).unique(),
+  emailVerified: boolean("email_verified").notNull().default(false),
+
+  // better-auth admin plugin
+  role: text("role").notNull().default("user"),
+  banned: boolean("banned"),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires", { withTimezone: true }),
+
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const session = pgTable(
+  "session",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
-
-    // Telegram-specific identifier. Nullable so other clients (web, etc.)
-    // can create users without a Telegram identity.
-    telegramId: text("telegram_id"),
-
-    username: text("username"),
-    displayName: text("display_name"),
-    email: text("email"),
-
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
+    id: t.text("id").primaryKey(),
+    userId: t
+      .uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    token: t.varchar("token", { length: 255 }).notNull().unique(),
+    expiresAt: t
+      .timestamp("expires_at", { precision: 6, withTimezone: true })
       .notNull(),
-
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
+    ipAddress: t.text("ip_address"),
+    userAgent: t.text("user_agent"),
+    impersonatedBy: t.text("impersonated_by"), // better-auth admin plugin
+    createdAt: t
+      .timestamp("created_at", { precision: 6, withTimezone: true })
+      .notNull(),
+    updatedAt: t
+      .timestamp("updated_at", { precision: 6, withTimezone: true })
       .notNull(),
   },
-  (table) => [
-    uniqueIndex("users_telegram_id_idx").on(table.telegramId),
-    uniqueIndex("users_email_idx").on(table.email),
-  ],
+  (table) => [t.index("session_userId_idx").on(table.userId)],
+);
+
+export const account = pgTable(
+  "account",
+  {
+    id: t.text("id").primaryKey(),
+    userId: t
+      .uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    issuer: t.text("issuer").notNull(),
+    accountId: t.text("account_id").notNull(),
+    providerId: t.text("provider_id").notNull(),
+    accessToken: t.text("access_token"),
+    refreshToken: t.text("refresh_token"),
+    accessTokenExpiresAt: t.timestamp("access_token_expires_at", {
+      precision: 6,
+      withTimezone: true,
+    }),
+    refreshTokenExpiresAt: t.timestamp("refresh_token_expires_at", {
+      precision: 6,
+      withTimezone: true,
+    }),
+    scope: t.text("scope"),
+    idToken: t.text("id_token"),
+    password: t.text("password"),
+    createdAt: t
+      .timestamp("created_at", { precision: 6, withTimezone: true })
+      .notNull(),
+    updatedAt: t
+      .timestamp("updated_at", { precision: 6, withTimezone: true })
+      .notNull(),
+  },
+  (table) => [t.index("account_userId_idx").on(table.userId)],
+);
+
+export const verification = pgTable(
+  "verification",
+  {
+    id: t.text("id").primaryKey(),
+    identifier: t.text("identifier").notNull(),
+    value: t.text("value").notNull(),
+    expiresAt: t
+      .timestamp("expires_at", { precision: 6, withTimezone: true })
+      .notNull(),
+    createdAt: t
+      .timestamp("created_at", { precision: 6, withTimezone: true })
+      .notNull(),
+    updatedAt: t
+      .timestamp("updated_at", { precision: 6, withTimezone: true })
+      .notNull(),
+  },
+  (table) => [t.index("verification_identifier_idx").on(table.identifier)],
 );
 
 // ====================
@@ -303,7 +381,7 @@ export const messages = pgTable(
       .references(() => sessions.id, { onDelete: "cascade" }),
 
     // user / assistant / system / tool
-    role: text("role").notNull(),
+    role: messageRoleEnum("role").notNull(),
     content: text("content"),
     metadata: jsonb("metadata"),
 

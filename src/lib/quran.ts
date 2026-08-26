@@ -1,7 +1,7 @@
-import { db } from "@/src/db";
-import { surahs, ayahs } from "@/src/db/schema";
+import { db } from "@/db";
+import { surahs, ayahs } from "@/db/schema";
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
-import { searchQuranAyahs as engineSearch } from "@/src/lib/quran-search-engine";
+import { searchQuranAyahs as engineSearch } from "@/lib/quran-search-engine";
 
 export async function getAllSurahs() {
   return db.select().from(surahs).orderBy(asc(surahs.number));

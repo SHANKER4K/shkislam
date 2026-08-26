@@ -1,5 +1,5 @@
-import { db } from "@/src/db";
-import { themes, themeAyahs, themeHadiths, ayahs, hadiths, surahs, hadithBooks } from "@/src/db/schema";
+import { db } from "@/db";
+import { themes, themeAyahs, themeHadiths, ayahs, hadiths, surahs, hadithBooks } from "@/db/schema";
 import { eq, sql, desc } from "drizzle-orm";
 
 export interface Theme {
