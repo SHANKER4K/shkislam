@@ -29,6 +29,34 @@
       "when": 1787650262750,
       "tag": "0003_thick_skullbuster",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788432633961,
+      "tag": "0004_chubby_wolfpack",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788603886594,
+      "tag": "0005_productive_micromax",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788773127597,
+      "tag": "0006_round_mattie_franklin",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789023280819,
+      "tag": "0007_unusual_thunderbolts",
+      "breakpoints": true
     }
   ]
 }

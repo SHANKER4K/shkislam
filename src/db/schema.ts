@@ -100,6 +100,7 @@ export const hadiths = pgTable(
     number: integer("number").notNull(),
     narrator: text("narrator"),
     text: text("text").notNull(),
+    textSimple: text("text_simple"),
     textEn: text("text_en"),
     grade: hadithGradeEnum("grade").notNull().default("Sahih"),
     sharh: text("sharh"),
@@ -383,7 +384,7 @@ export const messages = pgTable(
     // user / assistant / system / tool
     role: messageRoleEnum("role").notNull(),
     content: text("content"),
-    metadata: jsonb("metadata"),
+    sequence: integer("sequence"),
 
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()

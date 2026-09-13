@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsUpDown, LogOut, ShieldCheck, UserRound, Users } from "lucide-react";
+import { ChevronsUpDown, KeyRound, LogOut, ShieldCheck, UserRound, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -96,6 +96,12 @@ export function SidebarProfile() {
               <Link href="/settings/security">
                 <ShieldCheck className="size-4 stroke-[1.5]" />
                 الأمان
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/settings/api-keys">
+                <KeyRound className="size-4 stroke-[1.5]" />
+                مفتاح API KEY
               </Link>
             </DropdownMenuItem>
             {isAdmin && (

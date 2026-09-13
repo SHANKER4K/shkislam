@@ -305,37 +305,6 @@ async function seedHadiths() {
   }
 }
 
-async function seedFTS() {
-  console.log("🔍 Populating full-text search vectors...");
-
-  await db.execute(sql`
-    ALTER TABLE ayahs ADD COLUMN IF NOT EXISTS search_vector tsvector;
-  `);
-  await db.execute(sql`
-    ALTER TABLE hadiths ADD COLUMN IF NOT EXISTS search_vector tsvector;
-  `);
-  // ponytail: rebuild all, not just NULL — re-seed needs fresh vectors
-  await db.execute(sql`
-    UPDATE ayahs SET search_vector = to_tsvector('arabic', text_simple)
-  `);
-
-  // hadiths: persist stripped text for FTS + trigram
-  await db.execute(sql`
-    ALTER TABLE hadiths ADD COLUMN IF NOT EXISTS text_simple text
-  `);
-  await db.execute(sql`
-    UPDATE hadiths SET text_simple = regexp_replace(
-      text, '[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]', '', 'g'
-    ) WHERE text_simple IS NULL
-  `);
-
-  await db.execute(sql`
-    UPDATE hadiths SET search_vector = to_tsvector('arabic', text_simple)
-  `);
-
-  console.log("✅ FTS vectors populated");
-}
-
 async function main() {
   console.log("🚀 Starting database seed...\n");
 
@@ -344,7 +313,6 @@ async function main() {
     await seedAyahs();
     await seedHadithBooks();
     await seedHadiths();
-    await seedFTS();
 
     console.log("\n🎉 Database seeded successfully!");
   } catch (error) {
