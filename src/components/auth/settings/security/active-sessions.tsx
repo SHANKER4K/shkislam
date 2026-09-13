@@ -1,4 +1,4 @@
-import { isSessionNotFreshError } from "@better-auth-ui/core"
+import { isReauthenticationRequiredError } from "@better-auth-ui/core"
 import type { AppAuthClient } from "@/lib/auth-client"
 import { useAuth, useListSessions, useSession } from "@better-auth-ui/react"
 import { Fragment } from "react"
@@ -47,7 +47,7 @@ export function ActiveSessions({ className }: ActiveSessionsProps) {
 
       <Card className={cn("gap-0 p-0", className)}>
         <CardContent className="p-0">
-          {isSessionNotFreshError(error) ? (
+          {isReauthenticationRequiredError(error) ? (
             <FreshSessionPrompt onFresh={() => sessionsQuery.refetch()} />
           ) : isPending ? (
             <SessionRowSkeleton />

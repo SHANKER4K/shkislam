@@ -50,10 +50,10 @@ export function FreshSessionPrompt({ onFresh }: FreshSessionPromptProps) {
       <FieldGroup className="gap-4">
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-medium">
-            {auth.localization.settings.freshSessionTitle}
+            {auth.localization.settings.reauthenticationTitle}
           </h3>
           <FieldDescription>
-            {auth.localization.settings.freshSessionDescription}
+            {auth.localization.settings.reauthenticationDescription}
           </FieldDescription>
         </div>
         {auth.emailAndPassword?.enabled ? (
@@ -79,7 +79,7 @@ export function FreshSessionPrompt({ onFresh }: FreshSessionPromptProps) {
             </Field>
             <Button disabled={!password || signIn.isPending} type="submit">
               {signIn.isPending && <Spinner />}
-              {auth.localization.settings.freshSessionSubmit}
+              {auth.localization.settings.reauthenticationAction}
             </Button>
           </form>
         ) : (
@@ -90,7 +90,7 @@ export function FreshSessionPrompt({ onFresh }: FreshSessionPromptProps) {
               })
             }
           >
-            {auth.localization.settings.freshSessionSignIn}
+            {auth.localization.settings.reauthenticationAction}
           </Button>
         )}
       </FieldGroup>

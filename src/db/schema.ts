@@ -191,6 +191,7 @@ export const users = pgTable("users", {
 
   username: text("username"),
   displayName: text("display_name"),
+  image: text("image"),
   email: varchar("email", { length: 255 }).unique(),
   emailVerified: boolean("email_verified").notNull().default(false),
 
@@ -242,7 +243,8 @@ export const account = pgTable(
       .uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    issuer: t.text("issuer").notNull(),
+    // ponytail: nullable — Better Auth >=1.7.3 never writes issuer; kept to avoid data loss
+    issuer: t.text("issuer"),
     accountId: t.text("account_id").notNull(),
     providerId: t.text("provider_id").notNull(),
     accessToken: t.text("access_token"),
