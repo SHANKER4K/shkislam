@@ -99,9 +99,9 @@ export function SidebarProfile() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/settings/api-keys">
+              <Link href="/settings/providers">
                 <KeyRound className="size-4 stroke-[1.5]" />
-                مفتاح API KEY
+                المزودون
               </Link>
             </DropdownMenuItem>
             {isAdmin && (

@@ -7,9 +7,8 @@ import Link from "next/link";
 
 import { useAuth, useSession } from "@better-auth-ui/react";
 import type { AppAuthClient } from "@/lib/auth-client";
-import { hasKey } from "@/lib/api-keys";
 import { fetchHistory } from "@/lib/chat-history";
-import { requiresKey, providerLabel } from "@/lib/provider-meta";
+import { listMyProviders, type MyProviders } from "@/lib/providers";
 import { ApiKeyGate } from "@/components/api-key-gate";
 
 import {
@@ -125,18 +124,16 @@ function Chat({
   // it starts with the URL value. New conversation = router.push("/").
   const sessionIdRef = useRef<string | null>(sessionId ?? null);
   const pendingTextRef = useRef<string | null>(null);
+  const [myProviders, setMyProviders] = useState<MyProviders | null>(null);
   const [gate, setGate] = useState<{
     open: boolean;
-    provider: string;
-    providerLabel: string;
-  }>({ open: false, provider: "", providerLabel: "" });
-  const [keyStatus, setKeyStatus] = useState<"unknown" | "ok" | "missing">(
-    "unknown",
-  );
+    connectionId: string;
+    providerName: string;
+    docsUrl: string | null;
+  }>({ open: false, connectionId: "", providerName: "", docsUrl: null });
 
   // Hydrate message history when landing directly on /[uuid].
   // ponytail: external-system sync (FastAPI history fetch).
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!sessionId) return;
     console.log("ping");
@@ -156,32 +153,31 @@ function Chat({
       })
       .catch(() => {});
   }, [sessionId]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const selectedModel = models.find((m) => m.id === modelId) ?? models[0];
 
   const chefs = [...new Set(models.map((m) => m.chef))];
 
   const selectedChef = selectedModel?.chef ?? "";
-  const needsKey = requiresKey(selectedChef);
 
-  // Re-check the key whenever the selected model / user changes.
-  // ponytail: this effect synchronises React with an external system
-  // (FastAPI's /keys/.../exists). Setting state directly in the body is
-  // the intended pattern for this kind of sync.
-  /* eslint-disable react-hooks/set-state-in-effect */
+  // The caller's own connections, from the DB-backed `/me/providers` API. The
+  // selected model always belongs to one of them, so its key state is known
+  // synchronously once the list has loaded (no per-model `exists` probe).
   useEffect(() => {
-    if (!userId || !selectedChef) return;
-    if (!needsKey) {
-      setKeyStatus("ok");
-      return;
-    }
-    setKeyStatus("unknown");
-    hasKey(selectedChef)
-      .then((ok) => setKeyStatus(ok ? "ok" : "missing"))
-      .catch(() => setKeyStatus("missing"));
-  }, [userId, selectedChef, needsKey]);
-  /* eslint-enable react-hooks/set-state-in-effect */
+    if (!userId) return;
+    listMyProviders()
+      .then(setMyProviders)
+      .catch(() => setMyProviders(null));
+  }, [userId]);
+
+  const selectedConnection = myProviders?.connections.find(
+    (c) => (c.slug ?? c.name) === selectedChef,
+  );
+  const keyStatus: "ok" | "missing" = !selectedConnection
+    ? "ok"
+    : selectedConnection.requiresKey && !selectedConnection.hasKey
+      ? "missing"
+      : "ok";
 
   const handleModelSelect = useCallback(
     (id: string) => {
@@ -317,12 +313,16 @@ function Chat({
 
       // If the selected model needs a key and the user hasn't set one,
       // stash the message and open the gate; we re-fire runStream after save.
-      if (keyStatus === "missing" && needsKey) {
+      if (keyStatus === "missing" && selectedConnection) {
         pendingTextRef.current = text;
         setGate({
           open: true,
-          provider: selectedChef,
-          providerLabel: providerLabel(selectedChef),
+          connectionId: selectedConnection.id,
+          providerName: selectedConnection.name,
+          docsUrl:
+            myProviders?.catalog.find(
+              (c) => c.slug === selectedConnection.slug,
+            )?.docsUrl ?? null,
         });
         return;
       }
@@ -347,7 +347,16 @@ function Chat({
     },
     // runStream closes over selectedModel/variant which change per render
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [userId, keyStatus, needsKey, selectedChef, selectedModel, variant, router],
+    [
+      userId,
+      keyStatus,
+      selectedConnection,
+      selectedChef,
+      selectedModel,
+      variant,
+      router,
+      myProviders,
+    ],
   );
 
   return (
@@ -470,6 +479,13 @@ function Chat({
               </PromptInputBody>
               <PromptInputFooter>
                 <PromptInputTools className="gap-2 flex-wrap">
+                  {models.length === 0 ? (
+                    <PromptInputButton
+                      onClick={() => router.push("/settings/providers")}
+                    >
+                      أضف مزوداً لبدء المحادثة
+                    </PromptInputButton>
+                  ) : (
                   <ModelSelector
                     open={modelSelectorOpen}
                     onOpenChange={setModelSelectorOpen}
@@ -542,6 +558,7 @@ function Chat({
                       </ModelSelectorList>
                     </ModelSelectorContent>
                   </ModelSelector>
+                  )}
 
                   <PromptInputSelect value={variant} onValueChange={setVariant}>
                     <PromptInputSelectTrigger className="max-w-[120px]">
@@ -567,12 +584,13 @@ function Chat({
       </main>
       {userId && (
         <ApiKeyGate
-          mode="add"
-          provider={gate.provider}
+          connectionId={gate.connectionId}
+          providerName={gate.providerName}
+          docsUrl={gate.docsUrl}
           open={gate.open}
           onOpenChange={(o) => setGate((g) => ({ ...g, open: o }))}
           onSaved={() => {
-            setKeyStatus("ok");
+            listMyProviders().then(setMyProviders).catch(() => {});
             setGate((g) => ({ ...g, open: false }));
             if (pendingTextRef.current) {
               const text = pendingTextRef.current;
