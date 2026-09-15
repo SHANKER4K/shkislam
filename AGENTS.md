@@ -83,3 +83,12 @@ Both unified in `src/lib/search.ts`.
 - `strict: false` in tsconfig — `any` is pervasive and intentional.
 - No test suite, no CI workflows.
 - Fonts: Tajawal (UI), Uthmanic (Quran display), Inter (Latin). All in `layout.tsx`.
+
+### Database ownership
+
+`src/db/schema.ts` + `drizzle/` are the only schema source of truth for the shared
+Postgres database. The FastAPI service in `../backend/` reads and writes the same
+tables with raw psycopg2 SQL (`backend/api/*.py`) and is **not** generated from this
+schema. Every schema change therefore needs both: the Drizzle migration here, and a
+matching hand-edit of the raw SQL there. There is no codegen and no drift check —
+if you add a column, grep `backend/api/` for the table name before you finish.
