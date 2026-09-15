@@ -507,26 +507,3 @@ export function buildFiltersPayload(
   }
   return out;
 }
-
-// FastAPI URL: query params, pool only for hybrid, filters as JSON string.
-export function buildSearchUrl(
-  method: "dense" | "sparse" | "hybrid",
-  params: {
-    collection: Collection;
-    query_text: string;
-    top_k: number;
-    pool: number;
-    filters: Record<string, unknown>;
-  },
-): string {
-  const backend_url = process.env.NEXT_PUBLIC_API_URL;
-  const url = new URL(`${backend_url}/search/${method}_search`);
-  url.searchParams.set("collection", params.collection);
-  url.searchParams.set("query_text", params.query_text);
-  url.searchParams.set("top_k", String(params.top_k));
-  if (method === "hybrid") url.searchParams.set("pool", String(params.pool));
-  if (Object.keys(params.filters).length > 0) {
-    url.searchParams.set("filters", JSON.stringify(params.filters));
-  }
-  return url.toString();
-}

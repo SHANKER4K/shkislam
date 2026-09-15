@@ -45,7 +45,9 @@ Bun is the dev runtime. Scripts use `bun run`, `bunx`. Lockfile is `bun.lock`. D
 ```bash
 bun run dev              # dev server
 bun run build            # production build
-bun run lint             # eslint (no typecheck — strict: false)
+bun run lint             # eslint (strict: false; does not type-check)
+bun run typecheck        # tsc --noEmit
+bun run test             # bun test (src/**/*.test.ts)
 bun run db:push          # push Drizzle schema to DB
 bun run db:seed          # seed Quran + hadith data (re-runnable)
 bun run db:seed-themes   # seed theme data
@@ -56,32 +58,31 @@ bun run db:migrate-search  # run search migration (pg_trgm + indexes + text_simp
 
 ## Architecture
 
-- **Next.js 16.2.9** App Router, RTL-first (`lang="ar"`, `dir="rtl"`)
+- **Next.js 16.3.5** App Router, RTL-first (`lang="ar"`, `dir="rtl"`)
 - **PostgreSQL** (Neon serverless) + **Drizzle ORM**
 - **shadcn/ui** (radix-vega style) + **Tailwind CSS v4**
 - Deploys to **Vercel**
 
-### Search — two backends
+### Search
 
-**Quran:** `quran-search-engine` npm package (bundled text + morphology data). No DB queries. Wrapped in `src/lib/quran-search-engine.ts` (singleton, LRU-cached). Returns lemma/root/exact matches with scores. Extended Arabic chars (U+08F0-08F2) normalized to standard equivalents for font compatibility.
+Search runs in the FastAPI backend, not in Next.js: `../backend/api/search.py`
+serves `/search/{dense,sparse,hybrid}_search` (the relay sends `rerank_pool`). The frontend is a
+thin relay — the UI in `src/app/search/vector-search.tsx` POSTs to the auth-gated
+`src/app/api/search/route.ts`, which signs the caller's identity and forwards to
+that endpoint; `src/app/search/vector-results.tsx` renders the hits. Facet schema,
+labels and book lists come from `src/lib/vector-data.ts`.
 
-**Hadith:** 4-tier DB fallback in `src/lib/hadith.ts`:
-
-1. **FTS** — `websearch_to_tsquery('arabic', ...)` against `search_vector`
-2. **Per-word FTS** — split query, try each word separately
-3. **Trigram** — `similarity()` against `text_simple`
-4. **LIKE** — `ILIKE` fallback
-
-Both unified in `src/lib/search.ts`.
+`src/lib/quran-search-engine.ts` (wraps the `quran-search-engine` npm package) and
+the legacy in-repo helpers (`searchAyahs`, `searchHadiths`, `rankBySimilarity`,
+`highlightText`, `src/lib/search.ts`) no longer have any importers.
 
 ### Key gotchas
 
-- `search_vector` is **not in Drizzle schema** — tsvector column managed via raw SQL only. Don't add it to `schema.ts`. Only needed for hadith search (Quran uses `quran-search-engine`).
-- Quran search text comes from the engine's bundled data, not DB. Font normalization (U+08F0-08F2 → standard diacritics) applied in `quran-search-engine.ts`.
+- `search_vector` is **not in Drizzle schema** — tsvector column managed via raw SQL only. Don't add it to `schema.ts`. Only the backend's hadith search reads it.
 - Hadiths have `text_simple` column (added by `migrate-search.ts`) — diacritics stripped via `ArabicServices.removeTashkeel` in seed, not regex.
 - DB pool is a `globalThis` singleton (`src/db/index.ts`) — prevents leak on HMR.
 - `strict: false` in tsconfig — `any` is pervasive and intentional.
-- No test suite, no CI workflows.
+- `bun test` runs the suite (`src/**/*.test.ts`). No CI workflows.
 - Fonts: Tajawal (UI), Uthmanic (Quran display), Inter (Latin). All in `layout.tsx`.
 
 ### Database ownership

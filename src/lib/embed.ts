@@ -34,37 +34,3 @@ export async function embedText(
     return null;
   }
 }
-
-/**
- * Compute cosine similarity between two Float32Arrays.
- */
-export function cosineSimilarity(a: Float32Array, b: Float32Array): number {
-  let dot = 0, na = 0, nb = 0;
-  for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i];
-    na += a[i] * a[i];
-    nb += b[i] * b[i];
-  }
-  return dot / (Math.sqrt(na) * Math.sqrt(nb) + 1e-10);
-}
-
-/**
- * Given a query embedding and a list of {id, embedding} pairs,
- * return the top k items sorted by cosine similarity.
- */
-export function rankBySimilarity(
-  queryVec: Float32Array,
-  items: { id: number; embedding: string }[],
-  topK = 20,
-): { id: number; score: number }[] {
-  const parsed = items.map((item) => ({
-    id: item.id,
-    vec: JSON.parse(item.embedding) as number[],
-  }));
-  const scored = parsed.map((item) => ({
-    id: item.id,
-    score: cosineSimilarity(queryVec, Float32Array.from(item.vec)),
-  }));
-  scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, topK);
-}

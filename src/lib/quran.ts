@@ -1,7 +1,6 @@
 import { db } from "@/db";
 import { surahs, ayahs } from "@/db/schema";
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
-import { searchQuranAyahs as engineSearch } from "@/lib/quran-search-engine";
 
 export async function getAllSurahs() {
   return db.select().from(surahs).orderBy(asc(surahs.number));
@@ -49,22 +48,6 @@ export async function getAyahBySurahAndVerse(
       and(eq(surahs.number, surahNumber), eq(ayahs.numberInSurah, verseNumber)),
     )
     .limit(1);
-}
-
-export async function searchAyahs(query: string) {
-  if (!query.trim()) return [];
-  return engineSearch(query);
-}
-
-export async function getAllAyahsForSitemap() {
-  return db
-    .select({
-      surahNumber: surahs.number,
-      numberInSurah: ayahs.numberInSurah,
-    })
-    .from(ayahs)
-    .innerJoin(surahs, eq(ayahs.surahId, surahs.id))
-    .orderBy(asc(surahs.number), asc(ayahs.numberInSurah));
 }
 
 export async function getAdjacentAyahs(surahId: number, currentNumber: number) {

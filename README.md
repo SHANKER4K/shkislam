@@ -15,17 +15,17 @@ Islamic platform for students of knowledge, preachers, and speakers. Browse the 
 <!-- SCREENSHOTS_START -->
 <!-- Add screenshots here: -->
 <!-- ![Home](public/screenshots/home.png) -->
-![Home](assets/home.jpg)
+![Home](src/assets/home.jpg)
 <!-- ![Quran](public/screenshots/quran.jpg) -->
-![Quran](assets/quran.jpg)
-![Surah](assets/surah.jpg)
-![Ayah](assets/ayah.jpg)
+![Quran](src/assets/quran.jpg)
+![Surah](src/assets/surah.jpg)
+![Ayah](src/assets/ayah.jpg)
 <!-- ![Hadith](public/screenshots/hadith.jpg) -->
-![Hadith](assets/hadith.jpg)
-![Hadith-book](assets/hadith-book.jpg)
-![Hadith-page](assets/hadith-page.jpg)
+![Hadith](src/assets/hadith.jpg)
+![Hadith-book](src/assets/hadith-book.jpg)
+![Hadith-page](src/assets/hadith-page.jpg)
 <!-- ![Search](public/screenshots/search.jpg) -->
-![Search](assets/search.jpg)
+![Search](src/assets/search.jpg)
 <!-- SCREENSHOTS_END -->
 
 ## Tech Stack
@@ -47,12 +47,17 @@ bun install
 cp .env.example .env  # configure DATABASE_URL
 bun run db:push
 bun run db:seed
+bun run db:seed-themes
 
 # Run dev server
 bun run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+Search and chat need the FastAPI service running alongside (see `../backend/`):
+set `API_URL`/`NEXT_PUBLIC_API_URL` and the shared secrets in `.env` to match its
+`.env`, or those routes return 500/502.
 
 ## Database Scripts
 
@@ -66,20 +71,22 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Project Structure
 
 ```
-app/                    # Next.js App Router pages
+src/app/                 # Next.js App Router pages
 ├── quran/[surahNumber]/ # Surah detail pages
 ├── hadith/[bookSlug]/   # Hadith book pages
 ├── themes/[slug]/       # Theme detail pages
-├── search/              # Search results
-└── api/                 # API routes (search, export-image)
+├── search/              # Vector search UI
+└── api/                 # API routes (search, chat, export-image, backend proxy)
 
 src/
 ├── components/          # React components
 ├── db/                  # Drizzle schema & seeds
-└── lib/                 # Utilities
+├── lib/                 # Utilities
+└── assets/              # Screenshots used by this README
 
 drizzle/                 # Database migrations
 public/                  # Static assets
+../backend/              # FastAPI service (separate repo): search, chat, keys
 ```
 
 ## License
