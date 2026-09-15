@@ -16,20 +16,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { addKey, updateKey } from "@/lib/api-keys";
-import { PROVIDERS, providerLabel } from "@/lib/provider-meta";
+import { updateConnection } from "@/lib/providers";
 
+// Chat-side prompt for a connection that exists but has no key yet. The key
+// is PATCHed to the caller's own connection through `/api/backend`, so it
+// never travels browser → FastAPI directly.
 export type ApiKeyGateProps = {
-  mode: "add" | "update";
-  provider: string;
+  connectionId: string;
+  providerName: string;
+  docsUrl?: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSaved?: () => void;
 };
 
 export function ApiKeyGate({
-  mode,
-  provider,
+  connectionId,
+  providerName,
+  docsUrl,
   open,
   onOpenChange,
   onSaved,
@@ -38,10 +42,6 @@ export function ApiKeyGate({
   const [show, setShow] = useState(false);
   const [pending, setPending] = useState(false);
 
-  const meta = (PROVIDERS as Record<string, { label?: string; docsUrl?: string | null }>)[provider];
-  const label = meta?.label ?? providerLabel(provider);
-  const docsUrl = meta?.docsUrl;
-
   async function handleSave() {
     if (!value.trim()) {
       toast.error("أدخل المفتاح");
@@ -49,22 +49,8 @@ export function ApiKeyGate({
     }
     setPending(true);
     try {
-      if (mode === "add") {
-        await addKey(provider, value.trim());
-        toast.success("تم حفظ المفتاح");
-      } else {
-        try {
-          await updateKey(provider, value.trim());
-          toast.success("تم تحديث المفتاح");
-        } catch (e) {
-          if (e instanceof Error && e.message === "NOT_FOUND") {
-            await addKey(provider, value.trim());
-            toast.success("تم حفظ المفتاح");
-          } else {
-            throw e;
-          }
-        }
-      }
+      await updateConnection(connectionId, { apiKey: value.trim() });
+      toast.success("تم حفظ المفتاح");
       setValue("");
       onOpenChange(false);
       onSaved?.();
@@ -81,10 +67,10 @@ export function ApiKeyGate({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <KeyRound className="size-5" />
-            {mode === "add" ? "أضف مفتاح API" : "حدّث مفتاح API"}
+            أضف مفتاح API
           </DialogTitle>
           <DialogDescription>
-            للمزود: <span className="font-semibold">{label}</span>
+            للمزود: <span className="font-semibold">{providerName}</span>
           </DialogDescription>
         </DialogHeader>
 

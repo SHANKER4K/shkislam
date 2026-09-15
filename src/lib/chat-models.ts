@@ -1,37 +1,46 @@
+import { eq } from "drizzle-orm";
+
 import type { ChatModel } from "@/components/chat";
+import { db } from "@/db";
+import { userProviders, providerModels } from "@/db/schema";
 
-type RawProviders = {
-  providers: Record<
-    string,
-    { url: string; models: Record<string, { variants: string[] }> }
-  >;
-};
+// The caller's own connections and their enabled models, read straight from
+// the DB (the frontend owns this schema and the page is already per-request
+// behind `proxy.ts`). No bot secret, no browser → FastAPI call.
+//
+// `chef` keeps its old meaning: the provider slug the chat request sends as
+// `model_provider`. A custom connection has no catalog slug, so its name (or
+// id) stands in.
+export async function loadChatModels(userId: string): Promise<ChatModel[]> {
+  if (!userId) return [];
+  try {
+    const connections = await db.query.userProviders.findMany({
+      where: eq(userProviders.userId, userId),
+      with: {
+        provider: true,
+        models: {
+          where: eq(providerModels.enabled, true),
+          orderBy: (models, { asc }) => [asc(models.modelId)],
+        },
+      },
+    });
 
-// ponytail: backend returns providers keyed by chef; flatten to one entry
-// per (chef, model) so the UI can group/filter as it likes.
-export async function loadChatModels(): Promise<ChatModel[]> {
-  const url = process.env.NEXT_PUBLIC_API_URL;
-  // Server-only secret (never NEXT_PUBLIC_*). Fail soft so a missing env var
-  // degrades the model picker instead of crashing the page.
-  const secret = process.env.BOT_SHARED_SECRET;
-  if (!secret) {
-    console.error("BOT_SHARED_SECRET is not set — model catalog unavailable");
+    return connections.flatMap((connection) => {
+      const chef =
+        connection.provider?.slug ?? connection.customName ?? connection.id;
+      return connection.models.map((model) => ({
+        chef,
+        chefSlug: chef,
+        id: model.modelId,
+        name: model.displayName ?? model.modelId,
+        providers: [chef],
+        variants: model.variants,
+      }));
+    });
+  } catch (error) {
+    // Fail soft: a DB hiccup degrades the picker to its empty state instead
+    // of crashing the page.
+    console.error("loadChatModels failed", error);
     return [];
   }
-  const r = await fetch(`${url}/providers`, {
-    headers: { "X-Bot-Secret": secret },
-    cache: "no-store",
-  });
-  if (!r.ok) return [];
-  const raw = (await r.json()) as RawProviders;
-  return Object.entries(raw.providers).flatMap(([provider, p]) =>
-    Object.entries(p.models).map(([model, m]) => ({
-      chef: provider,
-      chefSlug: provider,
-      id: model,
-      name: model,
-      providers: [provider],
-      variants: m.variants,
-    })),
-  );
 }

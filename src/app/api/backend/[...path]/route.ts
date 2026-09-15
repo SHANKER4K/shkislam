@@ -6,6 +6,14 @@ import { identityHeaders } from "@/lib/identity";
 // unauthenticated proxy to FastAPI.
 const ALLOWED = new Set(["keys", "messages", "sessions"]);
 
+// `/me` is only ever a door to `/me/providers`; matching two segments (not
+// `me` alone) keeps a future `/me/*` router from becoming reachable by
+// accident. `/me/providers` is the only router under `/me` today.
+function isAllowed(path: string[]): boolean {
+  if (path[0] === "me") return path[1] === "providers";
+  return ALLOWED.has(path[0]);
+}
+
 async function proxy(
   request: Request,
   { params }: { params: Promise<{ path: string[] }> },
@@ -16,7 +24,7 @@ async function proxy(
   }
 
   const { path } = await params;
-  if (!ALLOWED.has(path[0])) {
+  if (!isAllowed(path)) {
     return Response.json({ message: "Not found" }, { status: 404 });
   }
 
