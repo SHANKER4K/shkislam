@@ -1,7 +1,7 @@
-import { pipeline } from "@xenova/transformers";
+import { pipeline, type FeatureExtractionPipeline } from "@xenova/transformers";
 
 // ponytail: singleton pipeline — loaded once per process, cached by transformers.js
-let pipelineInstance: Promise<any> | null = null;
+let pipelineInstance: Promise<FeatureExtractionPipeline | null> | null = null;
 
 async function getPipeline() {
   if (!pipelineInstance) {

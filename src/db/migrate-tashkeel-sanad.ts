@@ -125,7 +125,8 @@ function mapToOriginal(original: string, strippedPos: number): { sanad: string; 
 
 async function main() {
   const countResult = await db.execute(sql`SELECT COUNT(*) as count FROM hadiths_with_sanad_matn`);
-  const total = parseInt((countResult.rows?.[0] as any)?.count ?? "0", 10);
+  const row = countResult.rows?.[0] as { count?: string | number } | undefined;
+  const total = parseInt(String(row?.count ?? "0"), 10);
   console.log(`Total hadiths: ${total}`);
 
   const pgClient = await pool.connect();

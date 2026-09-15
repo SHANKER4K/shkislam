@@ -1,6 +1,10 @@
 import { expect, test } from "bun:test";
 import { buildFiltersPayload, buildSearchUrl } from "./vector-data";
 
+// buildSearchUrl reads this at call time; pin it so the test is hermetic
+// instead of depending on the ambient environment.
+process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000";
+
 test("buildFiltersPayload drops unknown/empty values and coerces int keys", () => {
   expect(
     buildFiltersPayload("quran", { surah: "الفاتحة", surah_number: "7", bogus: "x", empty: "  " })
@@ -16,7 +20,8 @@ test("buildSearchUrl sets params; pool only for hybrid; filters as JSON", () => 
     pool: 50,
     filters: { surah_number: { gte: 2 } },
   });
-  expect(hybrid).toContain("http://localhost:8000/hybrid_search");
+  // Path prefix matches backend/api/search.py: APIRouter(prefix="/search").
+  expect(hybrid).toContain("http://localhost:8000/search/hybrid_search");
   expect(hybrid).toContain("collection=quran");
   expect(hybrid).toContain("query_text=" + encodeURIComponent("نور"));
   expect(hybrid).toContain("top_k=5");

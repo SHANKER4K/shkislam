@@ -525,8 +525,8 @@ export function buildSearchUrl(
   url.searchParams.set("query_text", params.query_text);
   url.searchParams.set("top_k", String(params.top_k));
   if (method === "hybrid") url.searchParams.set("pool", String(params.pool));
-  // if (Object.keys(params.filters).length > 0) {
-  // url.searchParams.set("filters", JSON.stringify(params.filters));
-  // }
+  if (Object.keys(params.filters).length > 0) {
+    url.searchParams.set("filters", JSON.stringify(params.filters));
+  }
   return url.toString();
 }
