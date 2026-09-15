@@ -1,4 +1,7 @@
+import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { identityHeaders } from "@/lib/identity";
 
 const METHODS = ["dense", "sparse", "hybrid"] as const;
 type Method = (typeof METHODS)[number];
@@ -61,6 +64,13 @@ function normalizeFilters(value: unknown): Filters {
 }
 
 export async function POST(request: NextRequest) {
+  // this relay hits a protected backend route — the proxy matcher can't
+  // cover /api/* paths, so gate it here like /api/chat does
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
   let body: SearchBody;
 
   try {
@@ -123,8 +133,9 @@ export async function POST(request: NextRequest) {
   };
 
   const backendUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL;
+  const identity = identityHeaders(session.user.id);
 
-  if (!backendUrl) {
+  if (!backendUrl || !identity) {
     return NextResponse.json(
       { error: "API_URL is not configured" },
       { status: 500 },
@@ -138,6 +149,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...identity,
       },
       body: JSON.stringify(payload),
       cache: "no-store",

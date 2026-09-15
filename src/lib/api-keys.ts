@@ -1,8 +1,7 @@
-// Thin client for the FastAPI key-management endpoints.
-// The Next.js app NEVER decrypts keys - that happens server-side in Python.
-// The relay (`/api/chat`) sends `user_id`; FastAPI fetches the key itself.
-
-const base = process.env.NEXT_PUBLIC_API_URL;
+// Thin client for the FastAPI key-management endpoints, relayed through
+// `/api/backend` so the Next server signs the caller's identity. The browser
+// never sends a user id, and the Next.js app NEVER decrypts keys — that
+// happens server-side in Python.
 
 export type KeyMeta = {
   id: string;
@@ -12,17 +11,14 @@ export type KeyMeta = {
   updated_at: string;
 };
 
-export async function listKeyProviders(userId: string): Promise<string[]> {
-  const r = await fetch(`${base}/keys/${userId}`, { cache: "no-store" });
+export async function listKeyProviders(): Promise<string[]> {
+  const r = await fetch("/api/backend/keys/me", { cache: "no-store" });
   if (!r.ok) throw new Error("list keys failed");
   return ((await r.json()) as KeyMeta[]).map((k) => k.provider);
 }
 
-export async function hasKey(
-  userId: string,
-  provider: string,
-): Promise<boolean> {
-  const r = await fetch(`${base}/keys/${userId}/${provider}/exists`, {
+export async function hasKey(provider: string): Promise<boolean> {
+  const r = await fetch(`/api/backend/keys/me/${provider}/exists`, {
     cache: "no-store",
   });
   if (!r.ok) return false;
@@ -30,28 +26,26 @@ export async function hasKey(
 }
 
 export async function addKey(
-  userId: string,
   provider: string,
   apiKey: string,
 ): Promise<KeyMeta> {
-  const r = await fetch(`${base}/keys/add`, {
+  const r = await fetch("/api/backend/keys/add", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, provider, api_key: apiKey }),
+    body: JSON.stringify({ provider, api_key: apiKey }),
   });
   if (!r.ok) throw new Error("add key failed");
   return r.json();
 }
 
 export async function updateKey(
-  userId: string,
   provider: string,
   apiKey: string,
 ): Promise<KeyMeta> {
-  const r = await fetch(`${base}/keys/update`, {
+  const r = await fetch("/api/backend/keys/update", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, provider, api_key: apiKey }),
+    body: JSON.stringify({ provider, api_key: apiKey }),
   });
   if (r.status === 404) throw new Error("NOT_FOUND");
   if (!r.ok) throw new Error("update key failed");

@@ -11,8 +11,15 @@ type RawProviders = {
 // per (chef, model) so the UI can group/filter as it likes.
 export async function loadChatModels(): Promise<ChatModel[]> {
   const url = process.env.NEXT_PUBLIC_API_URL;
+  // Server-only secret (never NEXT_PUBLIC_*). Fail soft so a missing env var
+  // degrades the model picker instead of crashing the page.
+  const secret = process.env.BOT_SHARED_SECRET;
+  if (!secret) {
+    console.error("BOT_SHARED_SECRET is not set — model catalog unavailable");
+    return [];
+  }
   const r = await fetch(`${url}/providers`, {
-    headers: { "X-Bot-Secret": "shk245" },
+    headers: { "X-Bot-Secret": secret },
     cache: "no-store",
   });
   if (!r.ok) return [];

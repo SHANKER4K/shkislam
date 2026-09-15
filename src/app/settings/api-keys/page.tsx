@@ -32,10 +32,10 @@ export default function ApiKeysSettingsPage() {
     provider: string;
   }>({ open: false, mode: "add", provider: "" });
 
-  const refresh = async (uid: string) => {
+  const refresh = async () => {
     setLoading(true);
     try {
-      const providers = await listKeyProviders(uid);
+      const providers = await listKeyProviders();
       const next: Record<string, ChefStatus> = {};
       for (const chef of Object.keys(PROVIDERS)) {
         const meta = (PROVIDERS as Record<string, { requiresKey?: boolean }>)[chef];
@@ -56,7 +56,7 @@ export default function ApiKeysSettingsPage() {
   useEffect(() => {
     if (!userId) return;
     /* eslint-disable-next-line react-hooks/set-state-in-effect */
-    refresh(userId);
+    refresh();
   }, [userId]);
 
   function openGate(provider: string, mode: "add" | "update") {
@@ -150,11 +150,10 @@ export default function ApiKeysSettingsPage() {
       {userId && gate.provider && (
         <ApiKeyGate
           mode={gate.mode}
-          userId={userId}
           provider={gate.provider}
           open={gate.open}
           onOpenChange={(o) => setGate((g) => ({ ...g, open: o }))}
-          onSaved={() => refresh(userId)}
+          onSaved={() => refresh()}
         />
       )}
     </div>

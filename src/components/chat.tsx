@@ -177,7 +177,7 @@ function Chat({
       return;
     }
     setKeyStatus("unknown");
-    hasKey(userId, selectedChef)
+    hasKey(selectedChef)
       .then((ok) => setKeyStatus(ok ? "ok" : "missing"))
       .catch(() => setKeyStatus("missing"));
   }, [userId, selectedChef, needsKey]);
@@ -230,7 +230,6 @@ function Chat({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: text,
-          user_id: userId,
           session_id: sessionIdRef.current,
           model_provider: selectedModel?.chef ?? "",
           model_name: selectedModel?.id ?? "",
@@ -569,7 +568,6 @@ function Chat({
       {userId && (
         <ApiKeyGate
           mode="add"
-          userId={userId}
           provider={gate.provider}
           open={gate.open}
           onOpenChange={(o) => setGate((g) => ({ ...g, open: o }))}

@@ -21,7 +21,6 @@ import { PROVIDERS, providerLabel } from "@/lib/provider-meta";
 
 export type ApiKeyGateProps = {
   mode: "add" | "update";
-  userId: string;
   provider: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -30,7 +29,6 @@ export type ApiKeyGateProps = {
 
 export function ApiKeyGate({
   mode,
-  userId,
   provider,
   open,
   onOpenChange,
@@ -52,15 +50,15 @@ export function ApiKeyGate({
     setPending(true);
     try {
       if (mode === "add") {
-        await addKey(userId, provider, value.trim());
+        await addKey(provider, value.trim());
         toast.success("تم حفظ المفتاح");
       } else {
         try {
-          await updateKey(userId, provider, value.trim());
+          await updateKey(provider, value.trim());
           toast.success("تم تحديث المفتاح");
         } catch (e) {
           if (e instanceof Error && e.message === "NOT_FOUND") {
-            await addKey(userId, provider, value.trim());
+            await addKey(provider, value.trim());
             toast.success("تم حفظ المفتاح");
           } else {
             throw e;
