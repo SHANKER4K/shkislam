@@ -13,7 +13,7 @@ export type HistoryMessage = {
 
 export async function fetchHistory(uuid: string): Promise<HistoryMessage[]> {
   const r = await fetch(`/api/backend/messages/${uuid}`, {
-    cache: "no-store",
+    next: { revalidate: 0, tags: ['chat-history'] },
   });
   if (!r.ok) return [];
   return (await r.json()) as HistoryMessage[];

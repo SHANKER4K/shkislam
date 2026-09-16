@@ -84,6 +84,13 @@ const suggestedPrompts = [
   "ما هي ليلة القدر؟",
 ];
 
+const VARIANT_LABELS: Record<string, string> = {
+  low: "منخفض",
+  medium: "متوسط",
+  high: "مرتفع",
+};
+const variantLabel = (v: string) => VARIANT_LABELS[v] ?? v;
+
 export default function HomePage({
   models,
   sessionId,
@@ -136,7 +143,7 @@ function Chat({
   // ponytail: external-system sync (FastAPI history fetch).
   useEffect(() => {
     if (!sessionId) return;
-    console.log("ping");
+
 
     fetchHistory(sessionId)
       .then((rows) => {
@@ -147,8 +154,6 @@ function Chat({
             role: r.role as "user" | "assistant",
             content: r.content ?? "",
           }));
-        console.log(hydrated);
-
         setMessages(hydrated);
       })
       .catch(() => {});
@@ -505,10 +510,10 @@ function Chat({
                       </PromptInputButton>
                     </ModelSelectorTrigger>
                     <ModelSelectorContent>
-                      <ModelSelectorInput placeholder="Search models..." />
+                      <ModelSelectorInput placeholder="ابحث عن النموذج..." />
                       <ModelSelectorList>
                         <ModelSelectorEmpty>
-                          No models found.
+                          لا توجد نماذج مطابقة
                         </ModelSelectorEmpty>
                         {chefs.map((chef) => (
                           <ModelSelectorGroup heading={chef} key={chef}>
@@ -567,7 +572,7 @@ function Chat({
                     <PromptInputSelectContent>
                       {(selectedModel?.variants ?? ["low"]).map((v) => (
                         <PromptInputSelectItem key={v} value={v}>
-                          {v}
+                          {variantLabel(v)}
                         </PromptInputSelectItem>
                       ))}
                     </PromptInputSelectContent>

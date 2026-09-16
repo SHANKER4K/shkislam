@@ -3,7 +3,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
 // import { apiKeyPlugin } from "@/lib/auth/api-key-plugin";
 import { adminPlugin } from "@/lib/auth/admin-plugin";
@@ -19,14 +18,9 @@ import { getQueryClient } from "@/lib/query-client";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { Toaster } from "@/components/ui/sonner";
 
-const normalizeParam = (param: string | string[] | undefined) =>
-  (Array.isArray(param) ? param[0] : param)?.replace(/^@/, "") ?? null;
-
 export function Providers({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const params = useParams();
   const queryClient = getQueryClient();
-  const slug = normalizeParam(params.slug);
 
   return (
     <QueryClientProvider client={queryClient}>

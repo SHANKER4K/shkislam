@@ -31,7 +31,7 @@ function groupHadiths(items: FavoriteHadith[]): GroupedHadiths {
 }
 
 export default function FavoritesPage() {
-  const { favorites, removeFavorite, isFavorite } = useFavorites();
+  const { favorites, removeFavorite } = useFavorites();
 
   const ayahFavs = favorites.filter((f): f is FavoriteAyah => f.type === "ayah");
   const hadithFavs = favorites.filter((f): f is FavoriteHadith => f.type === "hadith");

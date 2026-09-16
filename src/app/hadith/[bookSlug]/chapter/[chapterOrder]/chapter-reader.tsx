@@ -45,18 +45,6 @@ export function ChapterReader({
   const [currentIndex, setCurrentIndex] = useState(0);
   const { getChapterReadSet, markRead, getLastRead } = useReadingProgress();
   const containerRef = useRef<HTMLDivElement>(null);
-  const targetElementRef = useRef(null);
-  // scroll to hadith
-  useEffect(() => {
-    if (!loading && targetElementRef.current) {
-      targetElementRef.current.scrollIntoView({
-        behavior: "smooth", // Use 'auto' if you want an instant jump without animation
-        block: "start", // Aligns the top of the element to the top of the screen
-        inline: "center",
-      });
-    }
-  }, [loading, currentIndex]); // Empty array means "run only once on page load"
-
   // Fetch hadiths for this chapter
   useEffect(() => {
     let cancelled = false;
@@ -133,21 +121,6 @@ export function ChapterReader({
     return () => window.removeEventListener("keydown", handler);
   }, [currentIndex, hadiths.length, goTo]);
 
-  // Auto-mark as read after 2 seconds of viewing
-  const viewedRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (loading || hadiths.length === 0) return;
-    const current = hadiths[currentIndex];
-    if (!current) return;
-    if (viewedRef.current === current.number) return;
-
-    viewedRef.current = current.number;
-    const timer = setTimeout(() => {
-      markRead(bookSlug, chapterOrder, current.number);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [currentIndex, loading, hadiths, bookSlug, chapterOrder, markRead]);
-
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto space-y-6">
@@ -174,7 +147,6 @@ export function ChapterReader({
   return (
     <div tabIndex={-1} className="max-w-full mx-auto outline-none px-20">
       <h1
-        ref={targetElementRef}
         className="font-arabic text-2xl font-bold mb-1"
       >
         {chapterNameAr}

@@ -27,9 +27,6 @@ export function ChapterCards({ bookSlug, chapters }: ChapterCardsProps) {
         const readSet = getChapterReadSet(bookSlug, chapter.order);
         const readCount = readSet.size;
         const remaining = Math.max(0, chapter.hadithCount - readCount);
-        const pct =
-          chapter.hadithCount > 0 ? (readCount / chapter.hadithCount) * 100 : 0;
-
         return (
           <Link
             key={chapter.id}
