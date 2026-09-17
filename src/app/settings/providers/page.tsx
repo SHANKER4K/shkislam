@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  Boxes,
-  KeyRound,
-  Plus,
-  RefreshCw,
-  Trash2,
-} from "lucide-react";
+import { Boxes, KeyRound, Plus, RefreshCw, Trash2 } from "lucide-react";
 
 import { useAuth, useSession } from "@better-auth-ui/react";
 import type { AppAuthClient } from "@/lib/auth-client";
@@ -93,15 +87,15 @@ export default function ProvidersSettingsPage() {
   const catalog = data?.catalog ?? [];
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6 p-20" dir="rtl">
       <header className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
           <Boxes className="size-6 stroke-[1.5]" />
           المزودون
         </h1>
         <p className="text-sm text-muted-foreground">
-          اربط مزودي الذكاء الاصطناعي الذين تريد استخدامهم. تُحفظ المفاتيح مشفّرة
-          ولا تُعرض مرة أخرى.
+          اربط مزودي الذكاء الاصطناعي الذين تريد استخدامهم. تُحفظ المفاتيح
+          مشفّرة ولا تُعرض مرة أخرى.
         </p>
       </header>
 
@@ -429,13 +423,18 @@ function ConnectDialog({
   const [headersText, setHeadersText] = useState("");
   const [pending, setPending] = useState(false);
 
-  const requiresKey = mode === "custom" ? true : (provider?.requiresKey ?? true);
+  const requiresKey =
+    mode === "custom" ? true : (provider?.requiresKey ?? true);
 
   async function handleSubmit() {
     let extraHeaders: Record<string, string>;
     try {
       const parsed = headersText.trim() ? JSON.parse(headersText) : {};
-      if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      if (
+        typeof parsed !== "object" ||
+        parsed === null ||
+        Array.isArray(parsed)
+      ) {
         throw new Error("bad json");
       }
       extraHeaders = parsed as Record<string, string>;
@@ -472,7 +471,9 @@ function ConnectDialog({
       onSaved();
     } catch (e) {
       toast.error(
-        e instanceof Error && e.message ? e.message : "فشل الحفظ، حاول مرة أخرى",
+        e instanceof Error && e.message
+          ? e.message
+          : "فشل الحفظ، حاول مرة أخرى",
       );
       // The connection row is saved before discovery runs, so refresh anyway.
       onSaved();
