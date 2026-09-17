@@ -39,6 +39,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const API_STYLES: { value: ProviderApiStyle; label: string }[] = [
   { value: "openai_compatible", label: "OpenAI-compatible" },
@@ -87,47 +88,52 @@ export default function ProvidersSettingsPage() {
   const catalog = data?.catalog ?? [];
 
   return (
-    <div className="space-y-6 p-20" dir="rtl">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Boxes className="size-6 stroke-[1.5]" />
-          المزودون
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          اربط مزودي الذكاء الاصطناعي الذين تريد استخدامهم. تُحفظ المفاتيح
-          مشفّرة ولا تُعرض مرة أخرى.
-        </p>
-      </header>
+    <main className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6 md:py-12" dir="rtl">
+      <div className="space-y-6">
+        <header className="space-y-1">
+          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+            <Boxes className="size-6 stroke-[1.5]" />
+            المزودون
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            اربط مزودي الذكاء الاصطناعي الذين تريد استخدامهم. تُحفظ المفاتيح
+            مشفّرة ولا تُعرض مرة أخرى.
+          </p>
+        </header>
 
-      <section className="grid gap-3 sm:grid-cols-2">
-        {catalog.map((provider) => {
-          const connection = connections.find(
-            (c) => c.providerId === provider.id,
-          );
-          return (
-            <ProviderCard
-              key={provider.id}
-              provider={provider}
-              connection={connection}
-              loading={loading}
-              onConnect={() =>
-                setDialog({ open: true, mode: "builtin", provider })
-              }
-              onDisconnect={async () => {
-                if (!connection) return;
-                try {
-                  await deleteConnection(connection.id);
-                  toast.success("تم فصل المزود");
-                  refresh();
-                } catch {
-                  toast.error("تعذّر فصل المزود");
-                }
-              }}
-            />
-          );
-        })}
+        <section className="grid gap-3 sm:grid-cols-2">
+          {loading && !data
+            ? Array.from({ length: 4 }).map((_, index) => (
+                <Skeleton key={index} className="h-28 w-full rounded-xl" />
+              ))
+            : catalog.map((provider) => {
+                const connection = connections.find(
+                  (item) => item.providerId === provider.id,
+                );
+                return (
+                  <ProviderCard
+                    key={provider.id}
+                    provider={provider}
+                    connection={connection}
+                    loading={loading}
+                    onConnect={() =>
+                      setDialog({ open: true, mode: "builtin", provider })
+                    }
+                    onDisconnect={async () => {
+                      if (!connection) return;
+                      try {
+                        await deleteConnection(connection.id);
+                        toast.success("تم فصل المزود");
+                        refresh();
+                      } catch {
+                        toast.error("تعذّر فصل المزود");
+                      }
+                    }}
+                  />
+                );
+              })}
 
-        <Card>
+          <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
             <div className="space-y-1 min-w-0">
               <CardTitle className="text-base flex items-center gap-2">
@@ -148,10 +154,10 @@ export default function ProvidersSettingsPage() {
               إضافة
             </Button>
           </CardHeader>
-        </Card>
-      </section>
+          </Card>
+        </section>
 
-      <section className="space-y-3">
+        <section className="space-y-3">
         <h2 className="text-lg font-semibold">الاتصالات</h2>
         {connections.length === 0 ? (
           <p className="text-sm text-muted-foreground">
@@ -166,17 +172,18 @@ export default function ProvidersSettingsPage() {
             />
           ))
         )}
-      </section>
+        </section>
 
-      <ConnectDialog
+        <ConnectDialog
         key={`${dialog.mode}-${dialog.provider?.id ?? "custom"}-${dialog.open}`}
         open={dialog.open}
         mode={dialog.mode}
         provider={dialog.provider}
         onOpenChange={(open) => setDialog((d) => ({ ...d, open }))}
         onSaved={refresh}
-      />
-    </div>
+        />
+      </div>
+    </main>
   );
 }
 

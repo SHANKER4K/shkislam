@@ -63,6 +63,10 @@ export function Settings({ className, view, path, hideNav }: SettingsProps) {
     )
   }
 
+  const activePluginTab = plugins.flatMap((plugin) =>
+    plugin.settingsTabs?.map((settingsTab) => ({ plugin, settingsTab })) ?? []
+  ).find(({ settingsTab }) => settingsTab.view === currentView)
+
   return (
     <Tabs
       value={currentView}
@@ -118,24 +122,22 @@ export function Settings({ className, view, path, hideNav }: SettingsProps) {
         </TabsList>
       </div>
 
-      <TabsContent value="account" tabIndex={-1}>
-        <AccountSettings />
-      </TabsContent>
+      {currentView === "account" && (
+        <TabsContent value="account" tabIndex={-1}>
+          <AccountSettings />
+        </TabsContent>
+      )}
 
-      <TabsContent value="security" tabIndex={-1}>
-        <SecuritySettings />
-      </TabsContent>
+      {currentView === "security" && (
+        <TabsContent value="security" tabIndex={-1}>
+          <SecuritySettings />
+        </TabsContent>
+      )}
 
-      {plugins.flatMap((plugin) =>
-        plugin.settingsTabs?.map((settingsTab) => (
-          <TabsContent
-            key={`${plugin.id}-${settingsTab.view}`}
-            value={settingsTab.view}
-            tabIndex={-1}
-          >
-            <settingsTab.component />
-          </TabsContent>
-        ))
+      {activePluginTab && (
+        <TabsContent value={activePluginTab.settingsTab.view} tabIndex={-1}>
+          <activePluginTab.settingsTab.component />
+        </TabsContent>
       )}
     </Tabs>
   )

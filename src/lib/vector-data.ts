@@ -1,42 +1,15 @@
-// Hardcoded from the FastAPI server (server.py). Single source of truth for
-// filter schema, combobox suggestions, and result display fields.
+// Hardcoded suggestions from the FastAPI server (server.py). This module is
+// loaded only when advanced filters are opened so large book lists stay out of
+// the initial search bundle.
+import type { Collection } from "@/lib/vector-search-config";
 
-export const COLLECTIONS = [
-  "quran",
-  "hadith",
-  "tafsir",
-  "books",
-  "sunnah",
-] as const;
-export type Collection = (typeof COLLECTIONS)[number];
-
-// Allowed filter keys per collection with value type.
-// "int" keys accept numbers, "str" keys accept strings. Multiple keys AND-combined.
-export const FILTER_SCHEMA: Record<
-  Collection,
-  Record<string, "int" | "str">
-> = {
-  quran: { surah_number: "int", surah: "str" },
-  hadith: { book: "str", grade: "str" },
-  tafsir: { surah_number: "int", surah: "str", ayah_number: "int" },
-  books: {
-    book_id: "int",
-    book_name: "str",
-    category_name: "str",
-    all_authors: "str",
-    author_death: "int",
-    book_date: "int",
-  },
-  sunnah: {
-    book_id: "int",
-    book_name: "str",
-    category_name: "str",
-    all_authors: "str",
-    author_death: "int",
-    book_date: "int",
-    athar_number: "int",
-  },
-};
+export type { Collection } from "@/lib/vector-search-config";
+export {
+  COLLECTIONS,
+  FILTER_SCHEMA,
+  DISPLAY_FIELDS,
+  buildFiltersPayload,
+} from "@/lib/vector-search-config";
 
 export const HADITH_BOOKS = [
   "abudawud",
@@ -456,54 +429,4 @@ const SUGGESTIONS: Partial<Record<Collection, Record<string, string[]>>> = {
 
 export function getSuggestions(collection: Collection, key: string): string[] {
   return SUGGESTIONS[collection]?.[key] ?? [];
-}
-
-// Metadata payload fields worth showing as badges per collection, in display order.
-// (The searchable text itself lives in payload["text"] and is shown separately.)
-export const DISPLAY_FIELDS: Record<
-  Collection,
-  { key: string; label: string }[]
-> = {
-  quran: [
-    { key: "surah", label: "السورة" },
-    { key: "ayah_number", label: "رقم الآية" },
-  ],
-  hadith: [
-    { key: "book", label: "الكتاب" },
-    { key: "hadith_number", label: "رقم الحديث" },
-    { key: "grade", label: "الدرجة" },
-  ],
-  tafsir: [
-    { key: "tafsir_book", label: "كتاب التفسير" },
-    { key: "surah", label: "السورة" },
-    { key: "ayah_number", label: "رقم الآية" },
-    { key: "source", label: "المصدر" },
-  ],
-  books: [
-    { key: "book_name", label: "الكتاب" },
-    { key: "category_name", label: "التصنيف" },
-    { key: "all_authors", label: "المؤلف" },
-    { key: "page", label: "الصفحة" },
-  ],
-  sunnah: [
-    { key: "book_name", label: "الكتاب" },
-    { key: "category_name", label: "التصنيف" },
-    { key: "all_authors", label: "المؤلف" },
-    { key: "page", label: "الصفحة" },
-    { key: "source", label: "المصدر" },
-  ],
-};
-
-// Drop unknown/empty filter values; coerce int keys to numbers.
-export function buildFiltersPayload(
-  collection: Collection,
-  raw: Record<string, string>,
-): Record<string, string | number> {
-  const schema = FILTER_SCHEMA[collection];
-  const out: Record<string, string | number> = {};
-  for (const [key, value] of Object.entries(raw)) {
-    if (!(key in schema) || value.trim() === "") continue;
-    out[key] = schema[key] === "int" ? Number(value) : value.trim();
-  }
-  return out;
 }

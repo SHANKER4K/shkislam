@@ -6,10 +6,13 @@ import {
   hadithsWithSanadMatn,
 } from "@/db/schema";
 import { eq, asc, sql, desc } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 
-export async function getAllBooks() {
-  return db.select().from(hadithBooks).orderBy(asc(hadithBooks.id));
-}
+export const getAllBooks = unstable_cache(
+  () => db.select().from(hadithBooks).orderBy(asc(hadithBooks.id)),
+  ["hadith-books"],
+  { revalidate: 3600 },
+);
 
 export async function getBookBySlug(slug: string) {
   return db

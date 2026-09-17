@@ -1,45 +1,35 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useRef, useState } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { BookOpenText, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@/components/ui/combobox";
 import {
   COLLECTIONS,
-  FILTER_SCHEMA,
-  getSuggestions,
+  COLLECTION_LABELS,
   buildFiltersPayload,
   type Collection,
-} from "@/lib/vector-data";
+} from "@/lib/vector-search-config";
 import { VectorResults, type VectorHit } from "./vector-results";
 
+const AdvancedSearchFilters = dynamic(
+  () =>
+    import("./advanced-search-filters").then(
+      (module) => module.AdvancedSearchFilters,
+    ),
+  { ssr: false },
+);
+
 type Method = "dense" | "sparse" | "hybrid";
-
-const METHOD_LABELS: Record<Method, string> = {
-  dense: "Dense",
-  sparse: "Sparse",
-  hybrid: "Hybrid",
-};
-
-// const COLLECTION_OPTIONS = COLLECTIONS.map((c) => ({ value: c, label: c }));
 
 export function VectorSearchTool() {
   const [method, setMethod] = useState<Method>("hybrid");
   const [collection, setCollection] = useState<Collection>("quran");
   const [query, setQuery] = useState("");
   const [topK, setTopK] = useState(10);
-  const [pool, setPool] = useState(50);
+  const [pool, setPool] = useState(20);
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [results, setResults] = useState<VectorHit[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,15 +38,17 @@ export function VectorSearchTool() {
   const abortRef = useRef<AbortController | null>(null);
 
   const run = useCallback(async () => {
+    if (!query.trim()) return;
+
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
     setLoading(true);
     setError(null);
-    const filtersPayload = buildFiltersPayload(collection, filters);
     const start = performance.now();
+
     try {
-      const res = await fetch("/api/search", {
+      const response = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -65,16 +57,16 @@ export function VectorSearchTool() {
           query_text: query,
           top_k: topK,
           pool,
-          filters: filtersPayload,
+          filters: buildFiltersPayload(collection, filters),
         }),
         signal: controller.signal,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
       setResults(Array.isArray(data.results) ? data.results : []);
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name === "AbortError") return;
-      setError(err instanceof Error ? err.message : "فشل البحث");
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === "AbortError") return;
+      setError(error instanceof Error ? error.message : "فشل البحث");
       setResults(null);
     } finally {
       if (!controller.signal.aborted) {
@@ -82,186 +74,68 @@ export function VectorSearchTool() {
         setDuration(performance.now() - start);
       }
     }
-  }, [method, collection, query, topK, pool, filters]);
-
-  const schema = FILTER_SCHEMA[collection];
-
-  const setFilter = (key: string, value: string) => {
-    setFilters((prev) => {
-      const next = { ...prev };
-      if (value === "" || value == null) delete next[key];
-      else next[key] = value;
-      console.log(next);
-      return next;
-    });
-  };
+  }, [collection, filters, method, pool, query, topK]);
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardContent className="space-y-5 p-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="query-text">
-              نص البحث
+    <div className="space-y-8" dir="rtl">
+      <Card className="rounded-xl shadow-none">
+        <CardContent className="space-y-6 p-4 sm:p-6">
+          <div className="space-y-3">
+            <label className="text-base font-semibold" htmlFor="query-text">
+              ما الذي تبحث عنه؟
             </label>
             <Textarea
               id="query-text"
               dir="rtl"
-              rows={2}
-              placeholder="اكتب نص البحث هنا..."
+              rows={3}
+              placeholder="مثال: آيات عن الصبر، أو أحاديث في طلب العلم"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+                  event.preventDefault();
+                  void run();
+                }
+              }}
+              className="resize-y text-base leading-7"
             />
           </div>
 
-          <div className="space-y-2">
-            <span className="text-sm font-medium">نوع البحث</span>
-            <Tabs value={method} onValueChange={(v) => setMethod(v as Method)}>
-              <TabsList>
-                {(Object.keys(METHOD_LABELS) as Method[]).map((m) => (
-                  <TabsTrigger key={m} value={m}>
-                    {METHOD_LABELS[m]}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <span className="text-sm font-medium">المجموعة</span>
-              <Combobox
-                defaultValue={COLLECTIONS[0]}
-                onValueChange={(v) => {
-                  setCollection(v as Collection);
-                  setFilters({});
-                }}
-                items={COLLECTIONS}
-              >
-                <ComboboxInput placeholder="Select a framework" />
-                <ComboboxContent>
-                  <ComboboxEmpty>No items found.</ComboboxEmpty>
-                  <ComboboxList>
-                    {(item) => (
-                      <ComboboxItem key={item} value={item}>
-                        {item}
-                      </ComboboxItem>
-                    )}
-                  </ComboboxList>
-                </ComboboxContent>
-              </Combobox>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="top-k">
-                  top_k
-                </label>
-                <Input
-                  id="top-k"
-                  type="number"
-                  min={1}
-                  max={100}
-                  value={topK}
-                  onChange={(e) => setTopK(Number(e.target.value))}
-                />
-              </div>
-              {method === "hybrid" && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium" htmlFor="pool">
-                    pool
-                  </label>
-                  <Input
-                    id="pool"
-                    type="number"
-                    min={1}
-                    max={500}
-                    value={pool}
-                    onChange={(e) => setPool(Number(e.target.value))}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold">
-              الفلاتر ({Object.keys(schema).length})
-            </h3>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {Object.entries(schema).map(([key, kind]) => {
-                const suggestions = getSuggestions(collection, key);
-                return (
-                  <div key={key} className="space-y-2">
-                    <label
-                      className="text-sm font-medium"
-                      htmlFor={`filter-${key}`}
-                    >
-                      {key}
-                    </label>
-                    {suggestions.length > 0 ? (
-                      <Combobox
-                        value={filters[key] ?? ""}
-                        onValueChange={(v) => setFilter(key, v)}
-                        items={suggestions}
-                      >
-                        {("book_name" in filters && key !== "book_name") ||
-                        ("category_name" in filters &&
-                          key !== "category_name") ? (
-                          <ComboboxInput
-                            placeholder="اختر"
-                            showClear
-                            disabled
-                          />
-                        ) : (
-                          <ComboboxInput placeholder="اختر" showClear />
-                        )}
-                        <ComboboxContent>
-                          <ComboboxEmpty>No items found.</ComboboxEmpty>
-                          <ComboboxList>
-                            {(item) => (
-                              <ComboboxItem key={item} value={item}>
-                                {item}
-                              </ComboboxItem>
-                            )}
-                          </ComboboxList>
-                        </ComboboxContent>
-                      </Combobox>
-                    ) : "book_name" in filters ? (
-                      <Input
-                        id={`filter-${key}`}
-                        dir={kind === "int" ? "ltr" : "rtl"}
-                        type={kind === "int" ? "number" : "text"}
-                        value={filters[key] ?? ""}
-                        onChange={(e) => setFilter(key, e.target.value)}
-                        placeholder={kind === "int" ? "رقم" : "نص"}
-                        disabled
-                      />
-                    ) : (
-                      <Input
-                        id={`filter-${key}`}
-                        dir={kind === "int" ? "ltr" : "rtl"}
-                        type={kind === "int" ? "number" : "text"}
-                        value={filters[key] ?? ""}
-                        onChange={(e) => setFilter(key, e.target.value)}
-                        placeholder={kind === "int" ? "رقم" : "نص"}
-                      />
-                    )}
-                  </div>
-                );
-              })}
+            <span className="text-sm font-medium">ابحث في</span>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+              {COLLECTIONS.map((item) => (
+                <Button
+                  key={item}
+                  type="button"
+                  variant={collection === item ? "default" : "outline"}
+                  onClick={() => {
+                    setCollection(item);
+                    setFilters({});
+                  }}
+                  className="min-h-11 justify-start px-3 text-sm"
+                >
+                  <BookOpenText className="size-4" />
+                  <span className="truncate">{COLLECTION_LABELS[item]}</span>
+                </Button>
+              ))}
             </div>
           </div>
 
-          <Button
-            onClick={run}
-            disabled={loading || !query.trim()}
-            className="w-full sm:w-auto"
-          >
-            {loading ? (
-              <Loader2 className="ms-1 size-4 animate-spin" />
-            ) : (
-              <Search className="ms-1 size-4" />
-            )}
+          <AdvancedSearchFilters
+            collection={collection}
+            filters={filters}
+            method={method}
+            pool={pool}
+            topK={topK}
+            onFiltersChange={setFilters}
+            onMethodChange={setMethod}
+            onPoolChange={setPool}
+            onTopKChange={setTopK}
+          />
+
+          <Button onClick={run} disabled={loading || !query.trim()} className="w-full sm:w-auto">
+            <Search className="size-4" />
             بحث
           </Button>
         </CardContent>

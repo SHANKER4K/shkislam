@@ -10,7 +10,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Loader2, ChevronDown, RefreshCw, Clock } from "lucide-react";
-import { DISPLAY_FIELDS, type Collection } from "@/lib/vector-data";
+import { DISPLAY_FIELDS, type Collection } from "@/lib/vector-search-config";
 
 export interface VectorHit {
   score?: number;
@@ -92,7 +92,7 @@ export function VectorResults({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" aria-live="polite">
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
           {results.length} {results.length === 1 ? "نتيجة" : "نتائج"}
@@ -104,28 +104,19 @@ export function VectorResults({
           </span>
         )}
       </div>
-      {results
-        .sort((a, b) => b.score - a.score)
+      {[...results]
+        .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
         .map((hit, i) => {
           const payload = (hit.payload ?? {}) as Record<string, unknown>;
           const meta = metadataRows(collection, payload);
           const text = payload.text;
           return (
-            <Card key={i} className="transition-shadow hover:shadow-md">
-              <CardContent className="p-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <Badge variant="secondary">النتيجة #{i + 1}</Badge>
-                  <span className="text-sm font-semibold">
-                    Score:{" "}
-                    {typeof hit.score === "number"
-                      ? hit.score.toFixed(4)
-                      : formatValue(hit.score)}
-                  </span>
-                </div>
+            <Card key={`${formatValue(payload.id)}-${i}`} className="rounded-xl shadow-none transition-colors hover:bg-muted/30">
+              <CardContent className="p-4 sm:p-5">
 
                 {/* The searched text */}
                 {text !== undefined && text !== null && text !== "" ? (
-                  <p dir="rtl" className="font-arabic text-xl leading-relaxed">
+                  <p dir="rtl" className="font-arabic text-lg leading-9 sm:text-xl">
                     {formatValue(text)}
                   </p>
                 ) : (
@@ -134,7 +125,7 @@ export function VectorResults({
 
                 {/* Metadata as badges */}
                 {meta.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
+                  <div className="mt-4 flex flex-wrap gap-1.5">
                     {meta.map((m) => (
                       <Badge key={m.key} variant="outline">
                         {m.label}: {m.value}
@@ -151,7 +142,7 @@ export function VectorResults({
                       className="gap-1 text-xs text-muted-foreground"
                     >
                       <ChevronDown className="size-3" />
-                      الحمولة الكاملة (JSON)
+                      التفاصيل التقنية
                     </Button>
                   </CollapsibleTrigger>
                   <CollapsibleContent>

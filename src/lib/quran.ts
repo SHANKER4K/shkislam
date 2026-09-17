@@ -1,10 +1,13 @@
 import { db } from "@/db";
 import { surahs, ayahs } from "@/db/schema";
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 
-export async function getAllSurahs() {
-  return db.select().from(surahs).orderBy(asc(surahs.number));
-}
+export const getAllSurahs = unstable_cache(
+  () => db.select().from(surahs).orderBy(asc(surahs.number)),
+  ["quran-surahs"],
+  { revalidate: 3600 },
+);
 
 export async function getSurahByNumber(number: number) {
   return db.select().from(surahs).where(eq(surahs.number, number)).limit(1);
